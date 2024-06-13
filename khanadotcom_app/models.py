@@ -1,16 +1,19 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
 
-class User(models.Model):
-    # Represents a user of the system
-    username = models.CharField(max_length=100)
+class User(AbstractUser):
     email = models.EmailField(unique=True)
-    password = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=15)
-    date_of_birth = models.DateField()
+    date_of_birth = models.DateField(null=True, default=None)
     profile_picture = models.ImageField(
         upload_to="profile_pictures/", null=True, blank=True
     )
+    USERNAME_FIELD = "username"
+    REQUIRED_FIELDS = ["email"]
+
+    def __str__(self):
+        return self.username
 
 
 class Restaurant(models.Model):

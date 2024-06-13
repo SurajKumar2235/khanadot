@@ -16,10 +16,6 @@
     <!--Stylesheet-->
   </head>
   <body>
-    <div class="background">
-      <div class="shape"></div>
-      <div class="shape"></div>
-    </div>
     <form method="post">
       <h3>Login Here</h3>
       {% csrf_token %}
@@ -32,14 +28,15 @@
       />
 
       <label for="password">Password</label>
-      <input type="password" placeholder="Password" id="password" name="pass" />
+      <input
+        type="password"
+        placeholder="Password"
+        id="password"
+        name="password"
+      />
 
       <button type="submit">Log In</button>
-      <!-- <input type="button" value=""> -->
-      <!-- <div class="social">
-          <div class="go"><i class="fab fa-google"></i>  Google</div>
-          <div class="fb"><i class="fab fa-facebook"></i>  Facebook</div>
-        </div> -->
+
       <a href="{% url 'signup' %}">Create a account</a>
       <a href="{% url 'password_reset' %}">Forgot your password?</a>
     </form>

@@ -27,18 +27,18 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+
 # Reset password and email verififcation email settings
 # settings.py
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-
-# For production, you might use:
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.example.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'your-email@example.com'
-# EMAIL_HOST_PASSWORD = 'your-email-password'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True  # TLS (Transport Layer Security) protocol is used
+EMAIL_HOST_USER = "ashuramajestic@gmail.com"
+EMAIL_FROM = "ashuramajestic@gmail.com"
+EMAIL_HOST_PASSWORD = "djqynlkuarwwzezl"  # Your Gmail password or App Password
+PASSWORD_RESET_TIMEOUT = 14400
 
 
 # Application definition
@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "khanadotcom_app",
 ]
 
+AUTH_USER_MODEL = "khanadotcom_app.User"
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
