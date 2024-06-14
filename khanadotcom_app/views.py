@@ -1,4 +1,4 @@
-from django.shortcuts import render, HttpResponse, redirect
+from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.shortcuts import get_current_site
@@ -7,17 +7,19 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.urls import reverse
+from .models import *
+from .forms import OrderForm
 from .tokens import (
     account_activation_token,
 )  # Assuming you have tokens defined in a tokens.py file
+
 
 User = get_user_model()
 
 
 @login_required(login_url="login")
 def HomePage(request):
-    user = request.user  # Correctly retrieve the logged-in user
-    return render(request, "home.html", {"user": user})
+    return render(request, "home.html")
 
 
 def SignupPage(request):
@@ -108,3 +110,54 @@ def activateEmail(request, user, to_email):
     email.send()
 
     return HttpResponse("Activation email sent successfully.")
+
+
+def restaurant_list_view(request):
+    restaurants = Restaurant.objects.all()
+    return render(request, "restaurant_list.html", {"restaurants": restaurants})
+
+
+def restaurant_detail_view(request, restaurant_id):
+    restaurant = get_object_or_404(Restaurant, id=restaurant_id)
+    return render(request, "restaurant_detail.html", {"restaurant": restaurant})
+
+
+def menu_items_view(request, restaurant_id):
+    menu_items = MenuItem.objects.filter(restaurant_id=restaurant_id)
+    return render(request, "menu_items.html", {"menu_items": menu_items})
+
+
+def order_placement_view(request, restaurant_id):
+    restaurant = get_object_or_404(Restaurant, id=restaurant_id)
+    menu_items = MenuItem.objects.filter(restaurant=restaurant)
+
+    if request.method == "POST":
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            order = form.save(commit=False)
+            order.user = request.user  # Assign the order to the current user
+            order.save()
+            return redirect("order_confirmation", order_id=order.id)
+    else:
+        form = OrderForm()
+
+    return render(
+        request,
+        "order_placement.html",
+        {"form": form, "restaurant": restaurant, "menu_items": menu_items},
+    )
+
+
+def order_confirmation_view(request, order_id):
+    order = Order.objects.get(id=order_id)
+    return render(request, "order_confirmation.html", {"order": order})
+
+
+def user_profile_view(request):
+    user = request.user
+    return render(request, "user_profile.html", {"user": user})
+
+
+def order_history_view(request):
+    orders = Order.objects.filter(user=request.user)
+    return render(request, "order_history.html", {"orders": orders})

@@ -1,0 +1,9 @@
+{% extends 'base.html' %} {% block title %}Order History{% endblock %} 
+{% block content %}
+<h2>Your Order History</h2>
+<ul>
+  {% for order in orders %}
+  <li>Order #{{ order.id }} - {{ order.created_at }}</li>
+  {% endfor %}
+</ul>
+{% endblock %}

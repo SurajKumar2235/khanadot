@@ -1,0 +1,6 @@
+{% extends 'base.html' %} {% block title %}{{ restaurant.name }}{% endblock %}
+{% block content %}
+<h2>{{ restaurant.name }}</h2>
+<p>{{ restaurant.description }}</p>
+<a href="{% url 'menu_items' restaurant.id %}">View Menu</a>
+{% endblock %}
