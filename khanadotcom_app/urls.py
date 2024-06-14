@@ -37,7 +37,7 @@ urlpatterns = [
         name="restaurant_detail",
     ),
     path(
-        "restaurant/<int:restaurant_id>/menu/", views.menu_items_view, name="menu_item"
+        "restaurant/<int:restaurant_id>/menu/", views.menu_items_view, name="menu_items"
     ),
     # Order related paths
     path(
