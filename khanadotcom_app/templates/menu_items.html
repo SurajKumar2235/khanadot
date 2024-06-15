@@ -1,4 +1,7 @@
-{% extends 'base.html' %} {% block title %}Menu Items{% endblock %} 
+{% extends 'base.html' %}
+
+{% block title %}Menu Items{% endblock %}
+
 {% block content %}
 <h2>Menu</h2>
 <ul>
@@ -6,7 +9,10 @@
   <li>{{ item.name }} - ${{ item.price }}</li>
   {% endfor %}
 </ul>
-<a href="{% url 'order_placement' restaurant_id=menu_items.0.restaurant.id %}"
-  >Place an Order</a
->
+
+{% if menu_items %}
+<a href="{% url 'order_placement' restaurant_id=menu_items.0.restaurant.id %}">Place an Order</a>
+{% else %}
+<p>No menu items available.</p>
+{% endif %}
 {% endblock %}

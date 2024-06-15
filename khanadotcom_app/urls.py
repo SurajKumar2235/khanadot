@@ -40,9 +40,7 @@ urlpatterns = [
         "restaurant/<int:restaurant_id>/menu/", views.menu_items_view, name="menu_items"
     ),
     # Order related paths
-    path(
-        "order/<int:restaurant_id>/", views.order_placement_view, name="order_placement"
-    ),
+     path('restaurants/<int:restaurant_id>/order/', views.order_placement_view, name='order_placement'),
     path(
         "order/confirmation/<int:order_id>/",
         views.order_confirmation_view,

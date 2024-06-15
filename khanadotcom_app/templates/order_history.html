@@ -1,9 +1,23 @@
-{% extends 'base.html' %} {% block title %}Order History{% endblock %} 
+{% extends 'base.html' %}
+
+{% block title %}Order History{% endblock %}
+
 {% block content %}
-<h2>Your Order History</h2>
-<ul>
-  {% for order in orders %}
-  <li>Order #{{ order.id }} - {{ order.created_at }}</li>
-  {% endfor %}
-</ul>
+    <h2>Order History</h2>
+    <ul>
+        {% for order in orders %}
+            <li>
+                <strong>Order ID:</strong> {{ order.id }}<br>
+                <strong>Timestamp:</strong> {{ order.timestamp }}<br>
+                <strong>Total Amount:</strong> ${{ order.total_amount }}<br>
+                <strong>Items:</strong>
+                <ul>
+                    {% for item in order.orderitem_set.all %}
+                        <li>{{ item.quantity }} x {{ item.menu_item.name }} - ${{ item.menu_item.price }}</li>
+                    {% endfor %}
+                </ul>
+            </li>
+            <br>
+        {% endfor %}
+    </ul>
 {% endblock %}

@@ -127,30 +127,36 @@ def menu_items_view(request, restaurant_id):
     return render(request, "menu_items.html", {"menu_items": menu_items})
 
 
+@login_required(login_url="login")
 def order_placement_view(request, restaurant_id):
-    restaurant = get_object_or_404(Restaurant, id=restaurant_id)
-    menu_items = MenuItem.objects.filter(restaurant=restaurant)
+    if request.method == 'POST':
+        menu_items = request.POST.getlist('menu_item')
+        quantities = request.POST.getlist('quantity')
 
-    if request.method == "POST":
-        form = OrderForm(request.POST)
-        if form.is_valid():
-            order = form.save(commit=False)
-            order.user = request.user  # Assign the order to the current user
-            order.save()
-            return redirect("order_confirmation", order_id=order.id)
+        restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
+        user = request.user
+
+        # Create or get the user's current active order
+        order, created = Order.objects.get_or_create(user=user, total_amount=0)
+
+        # Iterate over selected menu items and quantities
+        for menu_item_id, quantity in zip(menu_items, quantities):
+            menu_item = get_object_or_404(MenuItem, pk=menu_item_id)
+            order.add_menu_item(menu_item, quantity)
+
+        return redirect('order_confirmation', order_id=order.id)
+
     else:
-        form = OrderForm()
-
-    return render(
-        request,
-        "order_placement.html",
-        {"form": form, "restaurant": restaurant, "menu_items": menu_items},
-    )
+        restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
+        menu_items = MenuItem.objects.filter(restaurant=restaurant)
+        return render(request, 'order_placement.html', {'restaurant': restaurant, 'menu_items': menu_items})
 
 
+@login_required(login_url="login")
 def order_confirmation_view(request, order_id):
-    order = Order.objects.get(id=order_id)
-    return render(request, "order_confirmation.html", {"order": order})
+    order = get_object_or_404(Order, id=order_id)
+    order_items = OrderItem.objects.filter(order=order)
+    return render(request, "order_confirmation.html", {"order": order, "order_items": order_items})
 
 
 def user_profile_view(request):
@@ -158,6 +164,7 @@ def user_profile_view(request):
     return render(request, "user_profile.html", {"user": user})
 
 
+@login_required(login_url="login")
 def order_history_view(request):
     orders = Order.objects.filter(user=request.user)
     return render(request, "order_history.html", {"orders": orders})

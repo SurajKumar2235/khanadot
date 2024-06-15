@@ -47,12 +47,31 @@ class Order(models.Model):
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"
 
+    def add_menu_item(self, menu_item, quantity):
+        order_item, created = OrderItem.objects.get_or_create(
+            order=self,
+            menu_item=menu_item,
+            defaults={'quantity': quantity}
+        )
+        if not created:
+            order_item.quantity += quantity
+            order_item.save()
+        self.update_total_amount()
+
+    def update_total_amount(self):
+        total = sum(item.menu_item.price * item.quantity for item in self.orderitem_set.all())
+        self.total_amount = total
+        self.save()
+
 
 class OrderItem(models.Model):
     # Represents an item within an order
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     menu_item = models.ForeignKey(MenuItem, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
+
+    def __str__(self):
+        return f"{self.quantity} x {self.menu_item.name}"
 
 
 class DeliveryAddress(models.Model):
