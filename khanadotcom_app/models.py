@@ -23,6 +23,9 @@ class Restaurant(models.Model):
     description = models.TextField()
     logo = models.ImageField(upload_to="restaurant_logos/", null=True, blank=True)
 
+    def __str__(self):
+        return self.name
+
 
 class MenuItem(models.Model):
     # Represents a menu item offered by a restaurant
@@ -31,6 +34,9 @@ class MenuItem(models.Model):
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
     description = models.TextField()
     image = models.ImageField(upload_to="menu_item_images/", null=True, blank=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Order(models.Model):
