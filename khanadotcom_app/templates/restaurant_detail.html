@@ -1,6 +1,14 @@
-{% extends 'base.html' %} {% block title %}{{ restaurant.name }}{% endblock %}
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ restaurant.name }}
+{% endblock %}
+
 {% block content %}
-<h2>{{ restaurant.name }}</h2>
-<p>{{ restaurant.description }}</p>
-<a href="{% url 'menu_items' restaurant.id %}">View Menu</a>
+    <h1>{{ restaurant.name }}</h1>
+    <p>Owner: {{ restaurant.owner.name }}</p>  {# Adjust 'name' to the appropriate field of the User model #}
+    <p>Address: {{ restaurant.address }}</p>
+    <p>Email: {{ restaurant.email }}</p>
+    <p>Description: {{ restaurant.description }}</p>
+    {% comment %} <a href="{% url 'menu_items' restaurant.id %}">View Menu</a> {% endcomment %}
 {% endblock %}

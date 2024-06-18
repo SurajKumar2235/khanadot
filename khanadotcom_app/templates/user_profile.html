@@ -3,5 +3,8 @@
 <h2>Your Profile</h2>
 <p>Name: {{ user.username }}</p>
 <p>Email: {{ user.email }}</p>
-<a href="{% url 'order_history' %}">Order History</a>
+<p>Address: {{ user.address }}</p>
+<p>Username: {{ user.username }}</p>
+<p>User Type: {{ user.user_type }}</p>
+{% comment %} <a href="{% url 'order_history' %}">Order History</a> {% endcomment %}
 {% endblock %}

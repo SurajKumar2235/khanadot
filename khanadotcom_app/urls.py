@@ -29,33 +29,33 @@ urlpatterns = [
         name="password_reset_complete",
     ),
     
-    # Account activation path
+    # # Account activation path
     path("activate/<uidb64>/<token>/", views.activate, name="activate"),
     
     # Restaurant related paths
-    path("restaurants/", views.restaurant_list_view, name="restaurant_list"),
+    path("restaurants/", views.restaurant_list, name="restaurant_list"),
     path(
-        "restaurant/<int:restaurant_id>/",
-        views.restaurant_detail_view,
+        "restaurants/<int:restaurant_id>/",
+        views.restaurant_detail,
         name="restaurant_detail",
     ),
     path(
-        "restaurant/<int:restaurant_id>/menu/", views.menu_items_view, name="menu_items"
+        "restaurants/<int:restaurant_id>/menu/", views.menu_items, name="menu_items"
     ),
     
-    # Order related paths
-    path(
-        "restaurants/<int:restaurant_id>/order/", 
-        views.order_placement_view, 
-        name='order_placement'
-    ),
-    path(
-        "order/confirmation/<int:order_id>/",
-        views.order_confirmation_view,
-        name="order_confirmation",
-    ),
+    # # Order related paths
+    # path(
+    #     "restaurants/<int:restaurant_id>/order/", 
+    #     views.order_placement_view, 
+    #     name='order_placement'
+    # ),
+    # path(
+    #     "order/confirmation/<int:order_id>/",
+    #     views.order_confirmation_view,
+    #     name="order_confirmation",
+    # ),
     
-    # User profile and order history paths
+    # # User profile and order history paths
     path("profile/", views.user_profile_view, name="user_profile"),
-    path("order/history/", views.order_history_view, name="order_history"),
+    # path("order/history/", views.order_history_view, name="order_history"),
 ]

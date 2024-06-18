@@ -28,7 +28,7 @@ class User(AbstractUser):
     )
     user_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    username=None
+    username = models.CharField(max_length=255,blank=True,null=True)
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=15)
     address = models.TextField()
@@ -45,15 +45,15 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
 
+    
     def __str__(self):
         return self.name
 
     class Meta:
-        managed = True
         db_table = 'user'
 
 
-class CustomerDetails(models.Model):
+class CustomerDetail(models.Model):
     customer = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True)
     name = models.CharField(max_length=255)
     date_of_birth = models.DateField(blank=True, null=True)
@@ -115,7 +115,7 @@ class MenuItem(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    image_url = models.URLField(blank=True, null=True)
+    menu_item_pic = models.ImageField(upload_to="menu_items/", null=True, blank=True)
     availability = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -207,7 +207,7 @@ class Review(models.Model):
     review_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, blank=True, null=True)
-    customer = models.ForeignKey(CustomerDetails, on_delete=models.CASCADE, related_name='reviews')
+    customer = models.ForeignKey(CustomerDetail, on_delete=models.CASCADE, related_name='reviews')
     delivery_person = models.ForeignKey(DeliveryPerson, on_delete=models.CASCADE, blank=True, null=True)
     rating = models.DecimalField(max_digits=3, decimal_places=2)
     comment = models.TextField(blank=True, null=True)
