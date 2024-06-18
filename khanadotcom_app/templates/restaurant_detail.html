@@ -10,5 +10,5 @@
     <p>Address: {{ restaurant.address }}</p>
     <p>Email: {{ restaurant.email }}</p>
     <p>Description: {{ restaurant.description }}</p>
-    {% comment %} <a href="{% url 'menu_items' restaurant.id %}">View Menu</a> {% endcomment %}
+    <a href="{% url 'menu_items' restaurant.restaurant_id %}">View Menu</a>
 {% endblock %}

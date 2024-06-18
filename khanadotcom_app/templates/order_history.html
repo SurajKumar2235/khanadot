@@ -4,20 +4,18 @@
 
 {% block content %}
     <h2>Order History</h2>
-    <ul>
-        {% for order in orders %}
-            <li>
-                <strong>Order ID:</strong> {{ order.id }}<br>
-                <strong>Timestamp:</strong> {{ order.timestamp }}<br>
-                <strong>Total Amount:</strong> ${{ order.total_amount }}<br>
-                <strong>Items:</strong>
-                <ul>
-                    {% for item in order.orderitem_set.all %}
-                        <li>{{ item.quantity }} x {{ item.menu_item.name }} - ${{ item.menu_item.price }}</li>
-                    {% endfor %}
-                </ul>
-            </li>
-            <br>
-        {% endfor %}
-    </ul>
+        {% if orders %}
+        <ul>
+            {% for order in orders %}
+                <li>
+                    <strong>Order ID:</strong> {{ order.order_id }}<br>
+                    <strong>Total Amount:</strong> ${{ order.total_amount }}<br>
+                    <strong>Status:</strong> {{ order.order_status }}<br>
+                    <strong>Order Date:</strong> {{ order.order_date }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You have no orders yet.</p>
+    {% endif %}
 {% endblock %}

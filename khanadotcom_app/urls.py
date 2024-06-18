@@ -43,19 +43,19 @@ urlpatterns = [
         "restaurants/<int:restaurant_id>/menu/", views.menu_items, name="menu_items"
     ),
     
-    # # Order related paths
-    # path(
-    #     "restaurants/<int:restaurant_id>/order/", 
-    #     views.order_placement_view, 
-    #     name='order_placement'
-    # ),
-    # path(
-    #     "order/confirmation/<int:order_id>/",
-    #     views.order_confirmation_view,
-    #     name="order_confirmation",
-    # ),
+    # Order related paths
+    path(
+        "restaurants/<int:restaurant_id>/order/", 
+        views.order_placement_view, 
+        name='order_placement'
+    ),
+    path(
+        "order/confirmation/<int:order_id>/",
+        views.order_confirmation_view,
+        name="order_confirmation",
+    ),
     
     # # User profile and order history paths
     path("profile/", views.user_profile_view, name="user_profile"),
-    # path("order/history/", views.order_history_view, name="order_history"),
+    path("order/history/", views.order_history_view, name="order_history"),
 ]

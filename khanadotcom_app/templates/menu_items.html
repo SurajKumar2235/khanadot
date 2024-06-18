@@ -11,7 +11,7 @@
 </ul>
 
 {% if menu_items %}
-{% comment %} <a href="{% url 'order_placement' restaurant_id=menu_items.0.restaurant.id %}">Place an Order</a> {% endcomment %}
+<a href="{% url 'order_placement' restaurant_id=menu_items.0.restaurant.restaurant_id %}">Place an Order</a>
 {% else %}
 <p>No menu items available.</p>
 {% endif %}
