@@ -8,21 +8,15 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.urls import reverse
 from .models import *
-from .forms import OrderForm
-from .tokens import (
-    account_activation_token,
-)  # Assuming you have tokens defined in a tokens.py file
-
+from .tokens import account_activation_token
 
 User = get_user_model()
 
-
 @login_required(login_url="login")
-def HomePage(request):
+def home_page(request):
     return render(request, "home.html")
 
-
-def SignupPage(request):
+def signup_page(request):
     if request.method == "POST":
         uname = request.POST.get("username")
         email = request.POST.get("email")
@@ -49,35 +43,30 @@ def SignupPage(request):
 
         my_user.save()
 
-        # Send activation email (you need to implement activateEmail function)
-        activateEmail(request, my_user, email)
+        # Send activation email
+        activate_email(request, my_user, email)
 
-        return redirect("login")  # Redirect to home or login page after signup
+        return redirect("login")  # Redirect to login page after signup
 
     return render(request, "signup.html")
 
-
-def LoginPage(request):
+def login_page(request):
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
 
-        user = authenticate(
-            request, username=username, password=password, is_active=True
-        )
+        user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
             return redirect("home")
         else:
-            return HttpResponse(f"Username or Password is incorrect!!!")
+            return HttpResponse("Username or Password is incorrect!!!")
 
     return render(request, "login.html")
 
-
-def LogoutPage(request):
+def logout_page(request):
     logout(request)
     return redirect("login")  # Redirect to login page after logout
-
 
 def activate(request, uidb64, token):
     try:
@@ -93,8 +82,7 @@ def activate(request, uidb64, token):
     else:
         return HttpResponse("Activation link is invalid or expired.")
 
-
-def activateEmail(request, user, to_email):
+def activate_email(request, user, to_email):
     mail_subject = "Activate your user Account"
     message = render_to_string(
         "activate_account.html",
@@ -111,46 +99,47 @@ def activateEmail(request, user, to_email):
 
     return HttpResponse("Activation email sent successfully.")
 
-
 def restaurant_list_view(request):
     restaurants = Restaurant.objects.all()
     return render(request, "restaurant_list.html", {"restaurants": restaurants})
-
 
 def restaurant_detail_view(request, restaurant_id):
     restaurant = get_object_or_404(Restaurant, id=restaurant_id)
     return render(request, "restaurant_detail.html", {"restaurant": restaurant})
 
-
 def menu_items_view(request, restaurant_id):
     menu_items = MenuItem.objects.filter(restaurant_id=restaurant_id)
     return render(request, "menu_items.html", {"menu_items": menu_items})
 
-
 @login_required(login_url="login")
 def order_placement_view(request, restaurant_id):
-    if request.method == 'POST':
-        menu_items = request.POST.getlist('menu_item')
-        quantities = request.POST.getlist('quantity')
+    if request.method == "POST":
+        menu_items = request.POST.getlist("menu_item")
+        quantities = request.POST.getlist("quantity")
 
         restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
         user = request.user
 
         # Create or get the user's current active order
-        order, created = Order.objects.get_or_create(user=user, total_amount=0)
+        order, created = Order.objects.get_or_create(user=user, order_status="Pending", defaults={"total_amount": 0})
 
         # Iterate over selected menu items and quantities
         for menu_item_id, quantity in zip(menu_items, quantities):
             menu_item = get_object_or_404(MenuItem, pk=menu_item_id)
-            order.add_menu_item(menu_item, quantity)
+            order_item, created = OrderItem.objects.get_or_create(order=order, menu_item=menu_item)
+            order_item.quantity += int(quantity)
+            order_item.price = menu_item.price * order_item.quantity
+            order_item.save()
 
-        return redirect('order_confirmation', order_id=order.id)
+        order.total_amount = sum(item.price for item in OrderItem.objects.filter(order=order))
+        order.save()
+
+        return redirect("order_confirmation", order_id=order.id)
 
     else:
         restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
         menu_items = MenuItem.objects.filter(restaurant=restaurant)
-        return render(request, 'order_placement.html', {'restaurant': restaurant, 'menu_items': menu_items})
-
+        return render(request, "order_placement.html", {"restaurant": restaurant, "menu_items": menu_items})
 
 @login_required(login_url="login")
 def order_confirmation_view(request, order_id):
@@ -158,11 +147,10 @@ def order_confirmation_view(request, order_id):
     order_items = OrderItem.objects.filter(order=order)
     return render(request, "order_confirmation.html", {"order": order, "order_items": order_items})
 
-
+@login_required(login_url="login")
 def user_profile_view(request):
     user = request.user
     return render(request, "user_profile.html", {"user": user})
-
 
 @login_required(login_url="login")
 def order_history_view(request):

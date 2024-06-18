@@ -4,10 +4,11 @@ from . import views
 
 urlpatterns = [
     # Authentication related paths
-    path("", views.SignupPage, name="signup"),
-    path("login/", views.LoginPage, name="login"),
-    path("home/", views.HomePage, name="home"),
-    path("logout/", views.LogoutPage, name="logout"),
+    path("", views.signup_page, name="signup"),
+    path("login/", views.login_page, name="login"),
+    path("home/", views.home_page, name="home"),
+    path("logout/", views.logout_page, name="logout"),
+    
     # Password reset paths
     path(
         "password_reset/", auth_views.PasswordResetView.as_view(), name="password_reset"
@@ -27,8 +28,10 @@ urlpatterns = [
         auth_views.PasswordResetCompleteView.as_view(),
         name="password_reset_complete",
     ),
+    
     # Account activation path
-    path("activate/<uidb64>/<token>", views.activate, name="activate"),
+    path("activate/<uidb64>/<token>/", views.activate, name="activate"),
+    
     # Restaurant related paths
     path("restaurants/", views.restaurant_list_view, name="restaurant_list"),
     path(
@@ -39,13 +42,19 @@ urlpatterns = [
     path(
         "restaurant/<int:restaurant_id>/menu/", views.menu_items_view, name="menu_items"
     ),
+    
     # Order related paths
-     path('restaurants/<int:restaurant_id>/order/', views.order_placement_view, name='order_placement'),
+    path(
+        "restaurants/<int:restaurant_id>/order/", 
+        views.order_placement_view, 
+        name='order_placement'
+    ),
     path(
         "order/confirmation/<int:order_id>/",
         views.order_confirmation_view,
         name="order_confirmation",
     ),
+    
     # User profile and order history paths
     path("profile/", views.user_profile_view, name="user_profile"),
     path("order/history/", views.order_history_view, name="order_history"),
