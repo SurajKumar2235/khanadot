@@ -55,7 +55,11 @@ urlpatterns = [
         name="order_confirmation",
     ),
     
-    # # User profile and order history paths
+    # User profile and order history paths
     path("profile/", views.user_profile_view, name="user_profile"),
     path("order/history/", views.order_history_view, name="order_history"),
+    
+    
+    # Validations
+    path('validate-aadhaar/', views.validate_aadhaar_view, name='validate_aadhaar'),
 ]

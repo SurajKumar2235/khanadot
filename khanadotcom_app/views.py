@@ -184,3 +184,16 @@ def order_history_view(request):
         'orders': orders,
     }
     return render(request, 'order_history.html', context)
+
+def validate_aadhaar_view(request):
+    if request.method == 'POST':
+        form = AadhaarValidationForm(request.POST)
+        if form.is_valid():
+            # If the Aadhaar number is valid, you can proceed with further actions
+            aadhaar_number = form.cleaned_data.get('aadhaar_number')
+            # Example: Redirect to a success page or render a success message
+            return render(request, 'aadhaar_success.html', {'aadhaar_number': aadhaar_number})
+    else:
+        form = AadhaarValidationForm()
+    
+    return render(request, 'validate_aadhaar.html', {'form': form})
