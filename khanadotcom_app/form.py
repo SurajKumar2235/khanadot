@@ -45,14 +45,5 @@ class OrderForm(forms.Form):
 
 class AadhaarValidationForm(forms.Form):
     aadhaar_number = forms.CharField(
-        max_length=12,
-        min_length=12,
         widget=forms.TextInput(attrs={"placeholder": "Enter Aadhaar Number"}),
-        label="Aadhaar Number",
     )
-
-    def clean_aadhaar_number(self):
-        aadhaar_number = self.cleaned_data.get("aadhaar_number")
-        if not re.match(r"^[2-9]{1}[0-9]{11}$", aadhaar_number):
-            raise forms.ValidationError("Invalid Aadhaar number format.")
-        return aadhaar_number
