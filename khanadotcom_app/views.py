@@ -11,6 +11,7 @@ from .tokens import account_activation_token
 from .form import *
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
+from stdnum.in_ import aadhaar
 
 User = get_user_model()
 
@@ -221,43 +222,7 @@ def validate_aadhaar_view(request):
 
 
 def validate_aadhar(aadhar_number):
-    aadhar_number = str(aadhar_number).replace(" ", "")  # Remove any spaces
+    aadhar_number = str(aadhar_number).replace(" ", "")
 
-    # Ensure the input contains only digits
-    if not aadhar_number.isdigit():
-        raise ValidationError("Aadhar card number must contain only digits.")
-
-    # Ensure the Aadhar card number is exactly 12 digits long
-    if len(aadhar_number) != 12:
-        raise ValidationError("Aadhar card number must be exactly 12 digits long.")
-
-    # Checksum validation logic
-    d = [
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        [1, 2, 3, 4, 0, 6, 7, 8, 9, 5],
-        [2, 3, 4, 0, 1, 7, 8, 9, 5, 6],
-        [3, 4, 0, 1, 2, 8, 9, 5, 6, 7],
-        [4, 0, 1, 2, 3, 9, 5, 6, 7, 8],
-        [5, 9, 8, 7, 6, 0, 4, 3, 2, 1],
-        [6, 5, 9, 8, 7, 1, 0, 4, 3, 2],
-        [7, 6, 5, 9, 8, 2, 1, 0, 4, 3],
-        [8, 7, 6, 5, 9, 3, 2, 1, 0, 4],
-        [9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
-    ]
-    p = [
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        [1, 5, 7, 6, 2, 8, 3, 0, 9, 4],
-        [5, 8, 0, 3, 7, 9, 6, 1, 4, 2],
-        [8, 9, 1, 6, 0, 4, 3, 5, 2, 7],
-        [9, 4, 5, 3, 1, 2, 6, 8, 7, 0],
-        [4, 2, 8, 6, 5, 7, 3, 9, 0, 1],
-        [2, 7, 9, 3, 8, 0, 6, 4, 1, 5],
-        [7, 0, 4, 6, 9, 1, 3, 2, 5, 8],
-    ]
-
-    c = 0
-    for i, val in enumerate(map(int, aadhar_number[::-1])):
-        c = d[c][p[i % 8][val]]
-
-    if c != 0:
-        raise ValidationError("Invalid Aadhaar card number.")
+    if not aadhaar.is_valid(aadhar_number):
+        raise ValidationError("Invalid Aadhaar number.")
