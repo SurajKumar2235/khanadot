@@ -1,2 +1,7 @@
 myenv
 test.py
+khanadotcom_app/templates/signup.html
+khanadotcom_app/templates/logout.html
+khanadotcom_app/templates/login.html
+khanadotcom_app/templates/restaurant_related.html
+khanadotcom_app/templates/orderplace.html

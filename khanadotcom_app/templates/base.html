@@ -3,23 +3,10 @@
   <head>
     <title>{% block title %}My Restaurant App{% endblock %}</title>
     {% load static %}
-<link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'style.css' %}" />
   </head>
   <body>
-    <header>
-      <h1>My Restaurant App</h1>
-      <nav>
-        <ul>
-          <li><a href="{% url 'home' %}">Home</a></li>
-          <li><a href="{% url 'restaurant_list' %}">Restaurants</a></li>
-          <li><a href="{% url 'user_profile' %}">Profile</a></li>
-        </ul>
-      </nav>
-    </header>
     <main>{% block content %}{% endblock %}</main>
-    <footer>
-      <li><a href="{% url 'logout' %}">Logout</a></li>
-      <p>&copy; 2024 My Restaurant App</p>
-    </footer>
+    <footer></footer>
   </body>
 </html>

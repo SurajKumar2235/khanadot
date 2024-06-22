@@ -1,23 +1,86 @@
-<!-- signup.html -->
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up</title>
-</head>
-<body>
-    <h2>Sign Up</h2>
+{% block content %}
+<h2>User Signup</h2>
+<form id="signupForm">
+    {% csrf_token %}
+    <label for="username">Username:</label><br>
+    <input type="text" id="username" name="username" required><br><br>
 
-    <form method="post">
-        {% csrf_token %}
-        
-        {{ form.as_p }}
-        
-        <button type="submit">Sign Up</button>
-    </form>
-    <a href="{% url 'login' %}">Already Have an account?</a>
-</body>
-</html>
+    <label for="name">Name:</label><br>
+    <input type="text" id="name" name="name" required><br><br>
+
+    <label for="email">Email:</label><br>
+    <input type="email" id="email" name="email" required><br><br>
+
+    <label for="password">Password:</label><br>
+    <input type="password" id="password" name="password" required><br><br>
+
+    <label for="user_type">User Type:</label><br>
+    <select id="user_type" name="user_type" required>
+        <option value="customer">Customer</option>
+        <option value="restaurant_owner">Restaurant Owner</option>
+        <option value="delivery_person">Delivery Person</option>
+    </select><br><br>
+
+    <label for="phone_number">Phone Number:</label><br>
+    <input type="text" id="phone_number" name="phone_number"><br><br>
+
+    <label for="address">Address:</label><br>
+    <textarea id="address" name="address" rows="4"></textarea><br><br>
+
+    <label for="aadhaar_number">Aadhaar Number:</label><br>
+    <input type="text" id="aadhaar_number" name="aadhaar_number"><br><br>
+
+    <button type="submit">Signup</button>
+</form>
+
+<div id="signupMessage"></div>
+
+<script>
+    document.getElementById("signupForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        let formData = new FormData(this);
+
+        fetch('/signup/', {
+            method: 'POST',
+            body: JSON.stringify(Object.fromEntries(formData)),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')  // Fetch CSRF token from cookies
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = '/success/';  // Redirect to success page
+            } else {
+                // Display error message
+                document.getElementById("signupMessage").innerHTML = `<p>Error: ${data.error}</p>`;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById("signupMessage").innerHTML = `<p>Network Error</p>`;
+        });
+    });
+
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}
