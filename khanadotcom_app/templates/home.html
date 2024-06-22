@@ -1,72 +1,7 @@
 {% extends 'base.html' %} {% block title %}Place Order{% endblock %} 
 {% block content %}
-<h2>Place Order</h2>
+<h2>Order History</h2>
 <form id="orderForm">
-  {% csrf_token %}
-  <label for="delivery_address">Delivery Address:</label><br />
-  <input
-    type="text"
-    id="delivery_address"
-    name="delivery_address"
-    required
-  /><br /><br />
-
-  <label>Select Items:</label><br />
-  <div id="menuItems">
-    <!-- Menu items will be dynamically added here -->
-  </div>
-  <br />
-
-  <button type="submit">Place Order</button>
-</form>
-
-<div id="orderMessage"></div>
-
-<script>
-  // Fetch menu items from API
-  fetch("/restaurants/2/menu/")
-    .then((response) => response.json())
-    .then((data) => {
-      const menuItemsDiv = document.getElementById("menuItems");
-      data.forEach((item) => {
-        const checkboxId = `item${item.id}`;
-        const label = `${item.name} - $${item.price}`;
-        const inputHTML = `
-            <input type="checkbox" id="${checkboxId}" name="items" value="${item.id}">
-            <label for="${checkboxId}">${label}</label><br>`;
-        menuItemsDiv.innerHTML += inputHTML;
-      });
-    })
-    .catch((error) => console.error("Error fetching menu items:", error));
-  document
-    .getElementById("orderForm")
-    .addEventListener("submit", function (event) {
-      event.preventDefault();
-
-      let formData = new FormData(this);
-
-      fetch("/restaurants/2/order/", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            document.getElementById(
-              "orderMessage"
-            ).innerHTML = `<p>Order placed successfully. Order ID: ${data.order_id}</p>`;
-          } else {
-            document.getElementById(
-              "orderMessage"
-            ).innerHTML = `<p>Error: ${data.error}</p>`;
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-          document.getElementById(
-            "orderMessage"
-          ).innerHTML = `<p>Network Error</p>`;
-        });
-    });
+  
 </script>
 {% endblock %}

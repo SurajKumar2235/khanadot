@@ -31,11 +31,6 @@ from django.shortcuts import render
 
 User = get_user_model()
 
-def home(request):
-    return render(request,'home.html')
-def success(request):
-    return render(request,'sucess.html')
-
 @csrf_exempt
 @api_view(["POST"])
 def signup_api(request):
