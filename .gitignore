@@ -8,3 +8,5 @@ khanadotcom_app/templates/signup.html
 khanadotcom_app/templates/sucess.html
 khanadotcom_app/templates/restaurant_detail.html
 khanadotcom_app/templates/restaurant_related.html
+media/menu_items
+media/profile_pictures
