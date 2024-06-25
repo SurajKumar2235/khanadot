@@ -1,5 +1,12 @@
 from rest_framework import serializers
-from .models import Order, OrderItem
+from .models import (
+    Order,
+    OrderItem,
+    CustomerDetail,
+    RestaurantOwner,
+    DeliveryPerson,
+    Restaurant,
+)
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -25,3 +32,27 @@ class OrderSerializer(serializers.ModelSerializer):
             "order_date",
             "items",
         )
+
+
+class CustomerDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomerDetail
+        fields = "__all__"
+
+
+class RestaurantOwnerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RestaurantOwner
+        fields = "__all__"
+
+
+class DeliveryPersonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeliveryPerson
+        fields = "__all__"
+
+
+class RestaurantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Restaurant
+        fields = "__all__"

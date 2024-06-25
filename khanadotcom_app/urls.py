@@ -3,6 +3,8 @@ from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
+    path("", views.home, name="home"),
+    path("success/", views.success, name="success"),
     path("signup/", views.signup_api, name="signup_api"),
     path("login/", views.login_api, name="login_api"),
     path("logout/", views.logout_api, name="logout_api"),
@@ -31,22 +33,25 @@ urlpatterns = [
     ),
     path("order/history/", views.order_history_api, name="order_history_api"),
     # Password reset paths
+    path("password-reset/", views.request_password_reset, name="password_reset"),
     path(
-        "password_reset/", auth_views.PasswordResetView.as_view(), name="password_reset"
-    ),
-    path(
-        "password_reset/done/",
-        auth_views.PasswordResetDoneView.as_view(),
-        name="password_reset_done",
-    ),
-    path(
-        "reset/<uidb64>/<token>/",
-        auth_views.PasswordResetConfirmView.as_view(),
+        "password-reset-confirm/<uidb64>/<token>/",
+        views.password_reset_confirm,
         name="password_reset_confirm",
     ),
-    path(
-        "reset/done/",
-        auth_views.PasswordResetCompleteView.as_view(),
-        name="password_reset_complete",
-    ),
+    # path(
+    #     "restaurant_owner/update/",
+    #     views.update_restaurant_owner_details,
+    #     name="update_restaurant_owner_details",
+    # ),
+    # path(
+    #     "delivery_person/update/",
+    #     views.update_delivery_person_details,
+    #     name="update_delivery_person_details",
+    # ),
+    # path(
+    #     "restaurant/<int:restaurant_id>/update/",
+    #     views.update_restaurant_details,
+    #     name="update_restaurant_details",
+    # ),
 ]

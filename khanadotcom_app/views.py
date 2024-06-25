@@ -1,9 +1,30 @@
+from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.shortcuts import get_object_or_404
-from django.utils.encoding import force_bytes
+from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.db import transaction
+from .tokens import account_activation_token
+from stdnum.in_ import aadhaar
+import json
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework import status
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.contrib.auth.tokens import default_token_generator
+from django.db.models.query_utils import Q
+from .serializers import (
+    OrderSerializer,
+    RestaurantOwnerSerializer,
+    RestaurantSerializer,
+    CustomerDetailSerializer,
+    DeliveryPersonSerializer,
+)
+import re
 from .models import (
     RestaurantOwner,
     DeliveryPerson,
@@ -14,22 +35,36 @@ from .models import (
     Restaurant,
     CustomerDetail,
 )
-from .tokens import account_activation_token
-from stdnum.in_ import aadhaar
-import json
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from django.contrib.auth.tokens import default_token_generator
-from rest_framework import status
-from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMessage
-from django.template.loader import render_to_string
-from .serializers import OrderSerializer
-from django.db import transaction
-from django.shortcuts import render
 
 
 User = get_user_model()
+
+
+#  Authentication starts
+
+
+def validate_password(password):
+    if len(password) < 6:
+        raise ValueError("Password must be at least 6 characters long.")
+
+    if not re.search(r"[A-Z]", password):
+        raise ValueError("Password must contain at least one uppercase letter.")
+
+    if not re.search(r"[a-z]", password):
+        raise ValueError("Password must contain at least one lowercase letter.")
+
+    if not re.search(r"\d", password):
+        raise ValueError("Password must contain at least one digit.")
+
+    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+        raise ValueError("Password must contain at least one special character.")
+
+    return True
+
+def home(request):
+    return render(request, 'home.html')
+def success(request):
+    return render(request, 'success.html')
 
 @csrf_exempt
 @api_view(["POST"])
@@ -50,9 +85,16 @@ def signup_api(request):
 
             if not (username and email and password and user_type):
                 return JsonResponse(
-                    {"error": "All fields (username, email, password, user_type) are required."},
+                    {
+                        "error": "All fields (username, email, password, user_type) are required."
+                    },
                     status=400,
                 )
+            # Validate the password
+            try:
+                validate_password(password)
+            except ValueError as e:
+                return JsonResponse({"error": str(e)}, status=400)
 
             with transaction.atomic():
                 # Create user
@@ -68,7 +110,10 @@ def signup_api(request):
                 user.is_active = False
 
                 # Validate Aadhaar number if required
-                if user_type in ["restaurant_owner", "delivery_person"] and not aadhaar_number:
+                if (
+                    user_type in ["restaurant_owner", "delivery_person"]
+                    and not aadhaar_number
+                ):
                     raise ValueError("Aadhaar number is required for this user type.")
 
                 if aadhaar_number and not aadhaar.is_valid(aadhaar_number):
@@ -109,7 +154,8 @@ def signup_api(request):
 
         except Exception as e:
             return JsonResponse(
-                {"error": "Network Error"+str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"error": "Network Error" + str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
     else:
@@ -182,6 +228,9 @@ def send_activation_email(request, user):
     email.send()
 
 
+# authentication ends
+
+
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 def user_profile_api(request):
@@ -219,10 +268,18 @@ def restaurant_detail_api(request, restaurant_id):
 def menu_items_api(request, restaurant_id):
     menu_items = MenuItem.objects.filter(restaurant_id=restaurant_id)
     data = [
-        {"id": item.menu_item_id, "name": item.name, "price": item.price,"description": item.description}
+        {
+            "id": item.menu_item_id,
+            "name": item.name,
+            "price": item.price,
+            "description": item.description,
+        }
         for item in menu_items
     ]
     return Response(data)
+
+
+# Order placement api Starts
 
 
 @api_view(["POST"])
@@ -308,6 +365,9 @@ def order_confirmation_api(request, order_id):
     return Response(order_data)
 
 
+# Order placement api Ends
+
+
 @api_view(["GET"])
 def order_history_api(request):
     # Fetch orders for the current user (assuming user is authenticated)
@@ -317,3 +377,89 @@ def order_history_api(request):
     serializer = OrderSerializer(orders, many=True)
 
     return Response(serializer.data)
+
+
+# # reset password api start
+
+
+@api_view(["POST"])
+def request_password_reset(request):
+    data = request.data
+    email = data.get("email")
+    
+    if not email:
+        return Response({"error": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    users = User.objects.filter(Q(email=email))
+    if not users.exists():
+        return Response({"error": "No user found with this email."}, status=status.HTTP_404_NOT_FOUND)
+    
+    for user in users:
+        send_password_reset_email(request, user)
+    
+    return Response({"success": "Password reset email has been sent."}, status=status.HTTP_200_OK)
+
+
+def send_password_reset_email(request, user):
+    token = default_token_generator.make_token(user)
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    mail_subject = "Password Reset Request"
+    message = render_to_string(
+        "password_reset_email.html",
+        {
+            "user": user,
+            "domain": get_current_site(request).domain,
+            "uid": uid,
+            "token": token,
+        },
+    )
+    to_email = user.email
+    email = EmailMessage(mail_subject, message, to=[to_email])
+    email.send()
+
+@api_view(["GET", "POST"])
+def password_reset_confirm(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if request.method == "GET":
+        if user is not None and default_token_generator.check_token(user, token):
+            # Render the password reset form
+            return render(request, 'password_reset_confirm.html', {'uidb64': uidb64, 'token': token})
+        else:
+            # Invalid token or user not found
+            return Response({"error": "Inavalid token or Expired Token"}, status=status.HTTP_404_NOT_FOUND)
+
+    elif request.method == "POST":
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user is not None and default_token_generator.check_token(user, token):
+            new_password = request.data.get('new_password')
+
+            if new_password:
+                try:
+                    validate_password(new_password)
+                except ValueError as e:
+                    return JsonResponse({"error": str(e)}, status=400)
+
+                user.set_password(new_password)
+                user.save()
+                return JsonResponse({"message": "Password reset successfully."}, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": "invalid Token"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+# reset password api ends
+
+
+# Update Api Starts
+
+
+# Update Api Ends
