@@ -61,6 +61,10 @@ def validate_password(password):
 
     return True
 
+def home(request):
+    return render(request, 'home.html')
+def success(request):
+    return render(request, 'success.html')
 
 @csrf_exempt
 @api_view(["POST"])
