@@ -17,12 +17,9 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.contrib.auth.tokens import default_token_generator
 from django.db.models.query_utils import Q
+from django.contrib.auth.decorators import login_required
 from .serializers import (
     OrderSerializer,
-    RestaurantOwnerSerializer,
-    RestaurantSerializer,
-    CustomerDetailSerializer,
-    DeliveryPersonSerializer,
 )
 import re
 from .models import (
@@ -457,5 +454,71 @@ def password_reset_confirm(request, uidb64, token):
 
 # Update Api Starts
 
+
+@api_view(["POST"])
+def update_profile(request):
+    user = request.user  # Get the logged-in user instance
+
+    if request.method == "POST":
+        try:
+            data = request.data  # Use request.data to handle JSON payload
+
+            # Update user fields if provided and not empty
+            if 'name' in data and data['name'].strip():
+                user.name = data['name'].strip()
+            if 'phone_number' in data and data['phone_number'].strip():
+                user.phone_number = data['phone_number'].strip()
+            if 'address' in data and data['address'].strip():
+                user.address = data['address'].strip()
+            if 'profile_picture' in request.FILES:
+                user.profile_picture = request.FILES['profile_picture']
+
+            # Save the updated user object
+            user.save()
+
+            # Check user type and update related model if applicable
+            if user.user_type == 'customer':
+                customer_detail, created = CustomerDetail.objects.get_or_create(user=user)
+                if 'date_of_birth' in data and data['date_of_birth'].strip():
+                    customer_detail.date_of_birth = data['date_of_birth'].strip()
+                customer_detail.save()
+            elif user.user_type == 'restaurant_owner':
+                restaurant_owner, created = RestaurantOwner.objects.get_or_create(user=user)
+                if 'aadhaar_card_number' in data and data['aadhaar_card_number'].strip():
+                    restaurant_owner.aadhaar_card_number = data['aadhaar_card_number'].strip()
+                restaurant_owner.save()
+            elif user.user_type == 'delivery_person':
+                delivery_person, created = DeliveryPerson.objects.get_or_create(user=user)
+                if 'vehicle_details' in data and data['vehicle_details'].strip():
+                    delivery_person.vehicle_details = data['vehicle_details'].strip()
+                delivery_person.save()
+
+            # Prepare success response
+            response_data = {
+                'message': 'Your profile has been updated!',
+                'user_id': user.id,
+                'name': user.name,
+                'phone_number': user.phone_number,
+                'address': user.address,
+                'profile_picture': user.profile_picture.url if user.profile_picture else None
+                # Add more fields as needed
+            }
+            
+            return JsonResponse(response_data)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format."}, status=status.HTTP_400_BAD_REQUEST)
+
+        except ValueError as e:
+            return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return JsonResponse(
+                {"error": "Internal Server Error: " + str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+    else:
+        return JsonResponse({"error": "Method not allowed."}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 # Update Api Ends
