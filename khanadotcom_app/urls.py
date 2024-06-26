@@ -3,7 +3,9 @@ from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
-    
+    path("", views.loginView, name="login"),
+    path("home/", views.home, name="home"),
+    path("success/", views.success, name="success"),
     path("signup/", views.signup_api, name="signup_api"),
     path("login/", views.login_api, name="login_api"),
     path("logout/", views.logout_api, name="logout_api"),
@@ -39,6 +41,4 @@ urlpatterns = [
         views.password_reset_confirm,
         name="password_reset_confirm",
     ),
-   
-   
 ]

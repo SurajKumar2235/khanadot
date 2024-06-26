@@ -55,6 +55,15 @@ class User(AbstractUser):
         db_table = "user"
 
 
+class FailedLoginAttempt(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    attempt_count = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = "failed_login_attempt"
+
+
 class CustomerDetail(models.Model):
     customer_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

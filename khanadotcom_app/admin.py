@@ -1,5 +1,21 @@
 from django.contrib import admin
-from .models import *
+from .models import (
+    Restaurant,
+    Order,
+    MenuItem,
+    OrderItem,
+    FailedLoginAttempt,
+    User,
+    RestaurantOwner,
+    DeliveryPerson,
+    CustomerDetail,
+    Review,
+    Payment,
+    Coupon,
+    Category,
+    MenuItemCategory,
+    Notification,
+)
 
 # Register your models here
 
@@ -46,6 +62,13 @@ class OrderItemAdmin(admin.ModelAdmin):
     list_display = ("order", "menu_item", "quantity", "price")
     list_filter = ("order__order_status", "menu_item__restaurant")
     search_fields = ("order__order_id", "menu_item__name")
+
+
+@admin.register(FailedLoginAttempt)
+class FailedLoginAttemptAdmin(admin.ModelAdmin):
+    list_display = ("user", "timestamp")
+    search_fields = ("user__email", "timestamp")
+    list_filter = ("timestamp",)
 
 
 admin.site.register(RestaurantOwner)

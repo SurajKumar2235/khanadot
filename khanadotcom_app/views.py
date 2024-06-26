@@ -17,7 +17,7 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.contrib.auth.tokens import default_token_generator
 from django.db.models.query_utils import Q
-from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 from .serializers import (
     OrderSerializer,
 )
@@ -31,6 +31,7 @@ from .models import (
     MenuItem,
     Restaurant,
     CustomerDetail,
+    FailedLoginAttempt,
 )
 
 
@@ -57,6 +58,18 @@ def validate_password(password):
         raise ValueError("Password must contain at least one special character.")
 
     return True
+
+
+def loginView(request):
+    return render(request, "login.html")
+
+
+def home(request):
+    return render(request, "home.html")
+
+
+def success(request):
+    return render(request, "success.html")
 
 
 @csrf_exempt
@@ -163,14 +176,34 @@ def login_api(request):
 
         user = authenticate(username=username, password=password)
         if user is not None:
+            # Reset failed login attempts on successful login
+            FailedLoginAttempt.objects.filter(user=user).delete()
             login(request, user)
             return Response({"success": "Login successful."})
         else:
+            # Handle failed login attempts
+            user = User.objects.filter(email=username).first()
+            if user:
+                failed_attempt, created = FailedLoginAttempt.objects.get_or_create(
+                    user=user
+                )
+                failed_attempt.attempt_count += 1
+                failed_attempt.timestamp = timezone.now()
+                failed_attempt.save()
+
+                if failed_attempt.attempt_count >= 5:
+                    send_password_reset_email(request, user)
+                    return Response(
+                        {
+                            "error": "Too many failed login attempts. Password reset email has been sent."
+                        },
+                        status=status.HTTP_403_FORBIDDEN,
+                    )
+
             return Response(
                 {"error": "Invalid username or password."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
-
     else:
         return Response(
             {"error": "Method not allowed."}, status=status.HTTP_405_METHOD_NOT_ALLOWED
@@ -379,18 +412,25 @@ def order_history_api(request):
 def request_password_reset(request):
     data = request.data
     email = data.get("email")
-    
+
     if not email:
-        return Response({"error": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
-    
+        return Response(
+            {"error": "Email is required."}, status=status.HTTP_400_BAD_REQUEST
+        )
+
     users = User.objects.filter(Q(email=email))
     if not users.exists():
-        return Response({"error": "No user found with this email."}, status=status.HTTP_404_NOT_FOUND)
-    
+        return Response(
+            {"error": "No user found with this email."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
     for user in users:
         send_password_reset_email(request, user)
-    
-    return Response({"success": "Password reset email has been sent."}, status=status.HTTP_200_OK)
+
+    return Response(
+        {"success": "Password reset email has been sent."}, status=status.HTTP_200_OK
+    )
 
 
 def send_password_reset_email(request, user):
@@ -410,6 +450,7 @@ def send_password_reset_email(request, user):
     email = EmailMessage(mail_subject, message, to=[to_email])
     email.send()
 
+
 @api_view(["GET", "POST"])
 def password_reset_confirm(request, uidb64, token):
     try:
@@ -421,10 +462,17 @@ def password_reset_confirm(request, uidb64, token):
     if request.method == "GET":
         if user is not None and default_token_generator.check_token(user, token):
             # Render the password reset form
-            return render(request, 'password_reset_confirm.html', {'uidb64': uidb64, 'token': token})
+            return render(
+                request,
+                "password_reset_confirm.html",
+                {"uidb64": uidb64, "token": token},
+            )
         else:
             # Invalid token or user not found
-            return Response({"error": "Inavalid token or Expired Token"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Inavalid token or Expired Token"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
     elif request.method == "POST":
         try:
@@ -434,7 +482,7 @@ def password_reset_confirm(request, uidb64, token):
             user = None
 
         if user is not None and default_token_generator.check_token(user, token):
-            new_password = request.data.get('new_password')
+            new_password = request.data.get("new_password")
 
             if new_password:
                 try:
@@ -444,9 +492,14 @@ def password_reset_confirm(request, uidb64, token):
 
                 user.set_password(new_password)
                 user.save()
-                return JsonResponse({"message": "Password reset successfully."}, status=status.HTTP_200_OK)
+                return JsonResponse(
+                    {"message": "Password reset successfully."},
+                    status=status.HTTP_200_OK,
+                )
             else:
-                return Response({"error": "invalid Token"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"error": "invalid Token"}, status=status.HTTP_400_BAD_REQUEST
+                )
 
 
 # reset password api ends
@@ -464,50 +517,65 @@ def update_profile(request):
             data = request.data  # Use request.data to handle JSON payload
 
             # Update user fields if provided and not empty
-            if 'name' in data and data['name'].strip():
-                user.name = data['name'].strip()
-            if 'phone_number' in data and data['phone_number'].strip():
-                user.phone_number = data['phone_number'].strip()
-            if 'address' in data and data['address'].strip():
-                user.address = data['address'].strip()
-            if 'profile_picture' in request.FILES:
-                user.profile_picture = request.FILES['profile_picture']
+            if "name" in data and data["name"].strip():
+                user.name = data["name"].strip()
+            if "phone_number" in data and data["phone_number"].strip():
+                user.phone_number = data["phone_number"].strip()
+            if "address" in data and data["address"].strip():
+                user.address = data["address"].strip()
+            if "profile_picture" in request.FILES:
+                user.profile_picture = request.FILES["profile_picture"]
 
             # Save the updated user object
             user.save()
 
             # Check user type and update related model if applicable
-            if user.user_type == 'customer':
-                customer_detail, created = CustomerDetail.objects.get_or_create(user=user)
-                if 'date_of_birth' in data and data['date_of_birth'].strip():
-                    customer_detail.date_of_birth = data['date_of_birth'].strip()
+            if user.user_type == "customer":
+                customer_detail, created = CustomerDetail.objects.get_or_create(
+                    user=user
+                )
+                if "date_of_birth" in data and data["date_of_birth"].strip():
+                    customer_detail.date_of_birth = data["date_of_birth"].strip()
                 customer_detail.save()
-            elif user.user_type == 'restaurant_owner':
-                restaurant_owner, created = RestaurantOwner.objects.get_or_create(user=user)
-                if 'aadhaar_card_number' in data and data['aadhaar_card_number'].strip():
-                    restaurant_owner.aadhaar_card_number = data['aadhaar_card_number'].strip()
+            elif user.user_type == "restaurant_owner":
+                restaurant_owner, created = RestaurantOwner.objects.get_or_create(
+                    user=user
+                )
+                if (
+                    "aadhaar_card_number" in data
+                    and data["aadhaar_card_number"].strip()
+                ):
+                    restaurant_owner.aadhaar_card_number = data[
+                        "aadhaar_card_number"
+                    ].strip()
                 restaurant_owner.save()
-            elif user.user_type == 'delivery_person':
-                delivery_person, created = DeliveryPerson.objects.get_or_create(user=user)
-                if 'vehicle_details' in data and data['vehicle_details'].strip():
-                    delivery_person.vehicle_details = data['vehicle_details'].strip()
+            elif user.user_type == "delivery_person":
+                delivery_person, created = DeliveryPerson.objects.get_or_create(
+                    user=user
+                )
+                if "vehicle_details" in data and data["vehicle_details"].strip():
+                    delivery_person.vehicle_details = data["vehicle_details"].strip()
                 delivery_person.save()
 
             # Prepare success response
             response_data = {
-                'message': 'Your profile has been updated!',
-                'user_id': user.id,
-                'name': user.name,
-                'phone_number': user.phone_number,
-                'address': user.address,
-                'profile_picture': user.profile_picture.url if user.profile_picture else None
+                "message": "Your profile has been updated!",
+                "user_id": user.id,
+                "name": user.name,
+                "phone_number": user.phone_number,
+                "address": user.address,
+                "profile_picture": (
+                    user.profile_picture.url if user.profile_picture else None
+                ),
                 # Add more fields as needed
             }
-            
+
             return JsonResponse(response_data)
 
         except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON format."}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse(
+                {"error": "Invalid JSON format."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         except ValueError as e:
             return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -519,6 +587,9 @@ def update_profile(request):
             )
 
     else:
-        return JsonResponse({"error": "Method not allowed."}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return JsonResponse(
+            {"error": "Method not allowed."}, status=status.HTTP_405_METHOD_NOT_ALLOWED
+        )
+
 
 # Update Api Ends
