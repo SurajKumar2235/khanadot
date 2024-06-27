@@ -75,16 +75,15 @@ class CustomerDetail(models.Model):
         return f"{self.user.name}'s Details"
 
     class Meta:
-        managed = False
         db_table = "customer_details"
-        
+        managed = False
 
 
 class RestaurantOwner(models.Model):
     restaurant_owner_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     aadhaar_card_number = models.CharField(
-        max_length=12, unique=True, blank=False, null=False, default="default_aadhaar"
+        max_length=12, unique=True, blank=False, null=False
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -93,8 +92,8 @@ class RestaurantOwner(models.Model):
         return self.user.name
 
     class Meta:
-        managed = False
         db_table = "restaurant_owner_detail"
+        managed = False
 
 
 class Restaurant(models.Model):
@@ -118,8 +117,8 @@ class Restaurant(models.Model):
         return self.name
 
     class Meta:
-        managed = False
         db_table = "restaurant_details"
+        managed = False
 
 
 class DeliveryPerson(models.Model):
@@ -129,7 +128,7 @@ class DeliveryPerson(models.Model):
     availability_status = models.BooleanField(default=True)
     rating = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
     aadhaar_card_number = models.CharField(
-        max_length=12, unique=True, blank=False, null=False, default="default_aadhaar"
+        max_length=12, unique=True, blank=False, null=False
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -138,8 +137,8 @@ class DeliveryPerson(models.Model):
         return self.user.name
 
     class Meta:
-        managed = False
         db_table = "delivery_person_details"
+        managed = False
 
 
 class MenuItem(models.Model):
@@ -161,8 +160,8 @@ class MenuItem(models.Model):
         return self.name
 
     class Meta:
-        managed = False
         db_table = "menu_item_details"
+        managed = False
 
 
 class Order(models.Model):
@@ -193,8 +192,8 @@ class Order(models.Model):
         return f"Order {self.order_id} for {self.user.name}"
 
     class Meta:
-        managed = False
         db_table = "order"
+        managed = False
 
 
 class OrderItem(models.Model):
@@ -211,8 +210,8 @@ class OrderItem(models.Model):
         return f"{self.menu_item.name} (x{self.quantity})"
 
     class Meta:
-        managed = False
         db_table = "order_item"
+        managed = False
 
 
 class Payment(models.Model):
@@ -240,8 +239,8 @@ class Payment(models.Model):
         return f"Payment {self.payment_id} for Order {self.order.order_id}"
 
     class Meta:
-        managed = False
         db_table = "payment"
+        managed = False
 
 
 class Review(models.Model):
@@ -265,8 +264,8 @@ class Review(models.Model):
         return f"Review by {self.user.name}"
 
     class Meta:
-        managed = False
         db_table = "review"
+        managed = False
 
 
 class Category(models.Model):
@@ -280,8 +279,8 @@ class Category(models.Model):
         return self.name
 
     class Meta:
-        managed = False
         db_table = "category"
+        managed = False
 
 
 class MenuItemCategory(models.Model):
@@ -295,8 +294,8 @@ class MenuItemCategory(models.Model):
         return f"{self.menu_item.name} - {self.category.name}"
 
     class Meta:
-        managed = False
         db_table = "menu_item_category"
+        managed = False
 
 
 class Notification(models.Model):
@@ -310,8 +309,8 @@ class Notification(models.Model):
         return f"Notification for {self.user.name}"
 
     class Meta:
-        managed = False
         db_table = "notification"
+        managed = False
 
 
 class Coupon(models.Model):
@@ -332,5 +331,5 @@ class Coupon(models.Model):
         return self.code
 
     class Meta:
-        managed = False
         db_table = "coupon"
+        managed = False
