@@ -1,5 +1,8 @@
 myenv
 test.py
+khanadotcom_app/migrations
+khanadotcom_app/__pycache__
+khanadotcom_project/__pycache__
 khanadotcom_app/templates/home.html
 khanadotcom_app/templates/login.html
 khanadotcom_app/templates/logout.html
