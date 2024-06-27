@@ -18,6 +18,9 @@ from django.template.loader import render_to_string
 from django.contrib.auth.tokens import default_token_generator
 from django.db.models.query_utils import Q
 from django.utils import timezone
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
 from .serializers import (
     OrderSerializer,
 )
@@ -168,6 +171,7 @@ def signup_api(request):
         return JsonResponse({"error": "Method not allowed."}, status=405)
 
 
+@csrf_exempt
 @api_view(["POST"])
 def login_api(request):
     if request.method == "POST":
@@ -179,7 +183,13 @@ def login_api(request):
             # Reset failed login attempts on successful login
             FailedLoginAttempt.objects.filter(user=user).delete()
             login(request, user)
-            return Response({"success": "Login successful."})
+            # Generate JWT token
+            refresh = RefreshToken.for_user(user)
+            token_data = {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+            }
+            return Response({"success": "Login successful.", "token": token_data})
         else:
             # Handle failed login attempts
             user = User.objects.filter(email=username).first()
@@ -256,7 +266,7 @@ def send_activation_email(request, user):
 
 # authentication ends
 
-
+@permission_classes([IsAuthenticated])
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 def user_profile_api(request):
