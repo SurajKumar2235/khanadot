@@ -53,6 +53,7 @@ class User(AbstractUser):
 
     class Meta:
         db_table = "user"
+        managed = False
 
 
 class FailedLoginAttempt(models.Model):
@@ -62,6 +63,7 @@ class FailedLoginAttempt(models.Model):
 
     class Meta:
         db_table = "failed_login_attempt"
+        managed = False
 
 
 class CustomerDetail(models.Model):
@@ -73,8 +75,9 @@ class CustomerDetail(models.Model):
         return f"{self.user.name}'s Details"
 
     class Meta:
-        managed = True
+        managed = False
         db_table = "customer_details"
+        
 
 
 class RestaurantOwner(models.Model):
@@ -90,7 +93,7 @@ class RestaurantOwner(models.Model):
         return self.user.name
 
     class Meta:
-        managed = True
+        managed = False
         db_table = "restaurant_owner_detail"
 
 
@@ -115,7 +118,7 @@ class Restaurant(models.Model):
         return self.name
 
     class Meta:
-        managed = True
+        managed = False
         db_table = "restaurant_details"
 
 
@@ -135,7 +138,7 @@ class DeliveryPerson(models.Model):
         return self.user.name
 
     class Meta:
-        managed = True
+        managed = False
         db_table = "delivery_person_details"
 
 
@@ -158,7 +161,7 @@ class MenuItem(models.Model):
         return self.name
 
     class Meta:
-        managed = True
+        managed = False
         db_table = "menu_item_details"
 
 
@@ -190,7 +193,7 @@ class Order(models.Model):
         return f"Order {self.order_id} for {self.user.name}"
 
     class Meta:
-        managed = True
+        managed = False
         db_table = "order"
 
 
@@ -208,7 +211,7 @@ class OrderItem(models.Model):
         return f"{self.menu_item.name} (x{self.quantity})"
 
     class Meta:
-        managed = True
+        managed = False
         db_table = "order_item"
 
 
@@ -237,7 +240,7 @@ class Payment(models.Model):
         return f"Payment {self.payment_id} for Order {self.order.order_id}"
 
     class Meta:
-        managed = True
+        managed = False
         db_table = "payment"
 
 
@@ -262,7 +265,7 @@ class Review(models.Model):
         return f"Review by {self.user.name}"
 
     class Meta:
-        managed = True
+        managed = False
         db_table = "review"
 
 
@@ -277,7 +280,7 @@ class Category(models.Model):
         return self.name
 
     class Meta:
-        managed = True
+        managed = False
         db_table = "category"
 
 
@@ -292,7 +295,7 @@ class MenuItemCategory(models.Model):
         return f"{self.menu_item.name} - {self.category.name}"
 
     class Meta:
-        managed = True
+        managed = False
         db_table = "menu_item_category"
 
 
@@ -307,7 +310,7 @@ class Notification(models.Model):
         return f"Notification for {self.user.name}"
 
     class Meta:
-        managed = True
+        managed = False
         db_table = "notification"
 
 
@@ -329,5 +332,5 @@ class Coupon(models.Model):
         return self.code
 
     class Meta:
-        managed = True
+        managed = False
         db_table = "coupon"
