@@ -63,18 +63,6 @@ def validate_password(password):
     return True
 
 
-def loginView(request):
-    return render(request, "login.html")
-
-
-def home(request):
-    return render(request, "home.html")
-
-
-def success(request):
-    return render(request, "success.html")
-
-
 @csrf_exempt
 @api_view(["POST"])
 def signup_api(request):
@@ -173,6 +161,28 @@ def signup_api(request):
 
 @csrf_exempt
 @api_view(["POST"])
+def generate_token(request):
+    email = request.data.get("email")
+    password = request.data.get("password")
+
+    # Authenticate the user
+    user = authenticate(email=email, password=password)
+    if user is not None:
+        # Generate tokens for the user
+        refresh = RefreshToken.for_user(user)
+        token_data = {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }
+        return Response(token_data, status=status.HTTP_200_OK)
+    else:
+        return Response(
+            {"error": "Invalid email or password."}, status=status.HTTP_401_UNAUTHORIZED
+        )
+
+
+@csrf_exempt
+@api_view(["POST"])
 def login_api(request):
     if request.method == "POST":
         username = request.data.get("email")
@@ -183,13 +193,8 @@ def login_api(request):
             # Reset failed login attempts on successful login
             FailedLoginAttempt.objects.filter(user=user).delete()
             login(request, user)
-            # Generate JWT token
-            refresh = RefreshToken.for_user(user)
-            token_data = {
-                "refresh": str(refresh),
-                "access": str(refresh.access_token),
-            }
-            return Response({"success": "Login successful.", "token": token_data})
+
+            return Response({"success": "Login successful."})
         else:
             # Handle failed login attempts
             user = User.objects.filter(email=username).first()
@@ -266,9 +271,9 @@ def send_activation_email(request, user):
 
 # authentication ends
 
+
 @permission_classes([IsAuthenticated])
 @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
 def user_profile_api(request):
     user = request.user
     data = {

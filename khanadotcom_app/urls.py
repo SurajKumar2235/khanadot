@@ -3,10 +3,10 @@ from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
-  
     path("signup/", views.signup_api, name="signup_api"),
     path("login/", views.login_api, name="login_api"),
     path("logout/", views.logout_api, name="logout_api"),
+    path("token/", views.generate_token, name="generate_token"),
     path("activate/<uidb64>/<str:token>/", views.activate_api, name="activate_api"),
     path("profile/", views.user_profile_api, name="user_profile_api"),
     path("update-profile/", views.update_profile, name="update_profile"),
