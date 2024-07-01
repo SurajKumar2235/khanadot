@@ -10,7 +10,16 @@ class TokenMiddleware:
     def __call__(self, request):
         token = request.headers.get("Authorization")
 
-        admin_paths = ["/admin/", "/login/", "/signup/", "/token/"]
+        admin_paths = [
+            "/admin/",
+            "/login/",
+            "/signup/",
+            "/token/",
+            "/activate/",
+            "/password_reset/",
+            "/password_reset_confirm/",
+            "/request_password_reset/",
+        ]
         if any(request.path.startswith(path) for path in admin_paths):
             return self.get_response(request)
         if token:

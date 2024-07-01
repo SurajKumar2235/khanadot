@@ -63,6 +63,18 @@ def validate_password(password):
     return True
 
 
+def loginView(request):
+    return render(request, "login.html")
+
+
+def home(request):
+    return render(request, "home.html")
+
+
+def success(request):
+    return render(request, "success.html")
+
+
 @csrf_exempt
 @api_view(["POST"])
 def signup_api(request):
@@ -284,6 +296,7 @@ def user_profile_api(request):
     return Response(data)
 
 
+@permission_classes([IsAuthenticated])
 @api_view(["GET"])
 def restaurant_list_api(request):
     restaurants = Restaurant.objects.all()
@@ -294,6 +307,7 @@ def restaurant_list_api(request):
     return Response(data)
 
 
+@permission_classes([IsAuthenticated])
 @api_view(["GET"])
 def restaurant_detail_api(request, restaurant_id):
     restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
@@ -305,6 +319,7 @@ def restaurant_detail_api(request, restaurant_id):
     return Response(data)
 
 
+@permission_classes([IsAuthenticated])
 @api_view(["GET"])
 def menu_items_api(request, restaurant_id):
     menu_items = MenuItem.objects.filter(restaurant_id=restaurant_id)
@@ -323,6 +338,7 @@ def menu_items_api(request, restaurant_id):
 # Order placement api Starts
 
 
+@permission_classes([IsAuthenticated])
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 def order_placement_api(request, restaurant_id):
@@ -392,6 +408,7 @@ def order_placement_api(request, restaurant_id):
         )
 
 
+@permission_classes([IsAuthenticated])
 @api_view(["GET"])
 def order_confirmation_api(request, order_id):
     order = get_object_or_404(Order, order_id=order_id)
@@ -409,6 +426,7 @@ def order_confirmation_api(request, order_id):
 # Order placement api Ends
 
 
+@permission_classes([IsAuthenticated])
 @api_view(["GET"])
 def order_history_api(request):
     # Fetch orders for the current user (assuming user is authenticated)
@@ -523,6 +541,7 @@ def password_reset_confirm(request, uidb64, token):
 # Update Api Starts
 
 
+@permission_classes([IsAuthenticated])
 @api_view(["POST"])
 def update_profile(request):
     user = request.user  # Get the logged-in user instance
