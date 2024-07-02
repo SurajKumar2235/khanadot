@@ -11,9 +11,10 @@ class TokenMiddleware:
         token = request.headers.get("Authorization")
 
         admin_paths = [
-            "/admin/",
+            "/admin",
             "/login/",
             "/signup/",
+            "/delete-user/",
             "/token/",
             "/activate/",
             "/password_reset/",

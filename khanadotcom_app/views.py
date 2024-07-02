@@ -63,18 +63,6 @@ def validate_password(password):
     return True
 
 
-def loginView(request):
-    return render(request, "login.html")
-
-
-def home(request):
-    return render(request, "home.html")
-
-
-def success(request):
-    return render(request, "success.html")
-
-
 @csrf_exempt
 @api_view(["POST"])
 def signup_api(request):
@@ -284,11 +272,15 @@ def send_activation_email(request, user):
 # authentication ends
 
 
+# Basic apis starts
+
+
 @permission_classes([IsAuthenticated])
 @api_view(["GET"])
 def user_profile_api(request):
     user = request.user
     data = {
+        "user_id": user.user_id,
         "username": user.username,
         "email": user.email,
         "user_type": user.user_type,
@@ -334,6 +326,8 @@ def menu_items_api(request, restaurant_id):
     ]
     return Response(data)
 
+
+# Basic api ends
 
 # Order placement api Starts
 
@@ -438,7 +432,7 @@ def order_history_api(request):
     return Response(serializer.data)
 
 
-# # reset password api start
+#  reset password api start
 
 
 @api_view(["POST"])
@@ -627,3 +621,46 @@ def update_profile(request):
 
 
 # Update Api Ends
+
+# Delete api  Starts
+
+
+@api_view(["DELETE"])
+def delete_user_api(request, user_id):
+    try:
+        user = get_object_or_404(User, user_id=user_id)
+
+        # Soft delete the user
+        user.is_deleted = True
+        user.save()
+
+        # Soft delete specific table data based on user type
+        if user.user_type == "restaurant_owner":
+            restaurant_owner = get_object_or_404(RestaurantOwner, user=user)
+            restaurant_owner.is_deleted = True
+            restaurant_owner.save()
+        elif user.user_type == "delivery_person":
+            delivery_person = get_object_or_404(DeliveryPerson, user=user)
+            delivery_person.is_deleted = True
+            delivery_person.save()
+        elif user.user_type == "customer":
+            customer_detail = get_object_or_404(CustomerDetail, user=user)
+            customer_detail.is_deleted = True
+            customer_detail.save()
+
+        return Response(
+            {"success": "User and associated data soft deleted successfully."},
+            status=status.HTTP_200_OK,
+        )
+
+    except User.DoesNotExist:
+        return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    except Exception as e:
+        return Response(
+            {"error": f"Failed to soft delete user: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+# Delete api  Ends

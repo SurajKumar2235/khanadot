@@ -3,9 +3,6 @@ from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
-    path("", views.loginView, name="login"),
-    path("home/", views.home, name="home"),
-    path("success/", views.success, name="success"),
     path("signup/", views.signup_api, name="signup_api"),
     path("login/", views.login_api, name="login_api"),
     path("logout/", views.logout_api, name="logout_api"),
@@ -13,6 +10,7 @@ urlpatterns = [
     path("activate/<uidb64>/<str:token>/", views.activate_api, name="activate_api"),
     path("profile/", views.user_profile_api, name="user_profile_api"),
     path("update-profile/", views.update_profile, name="update_profile"),
+    path("delete-user/<int:user_id>/", views.delete_user_api, name="delete_user_api"),
     path("restaurants/", views.restaurant_list_api, name="restaurant_list_api"),
     path(
         "restaurants/<int:restaurant_id>/",
