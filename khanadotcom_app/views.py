@@ -41,6 +41,18 @@ from .models import (
 User = get_user_model()
 
 
+def loginView(request):
+    return render(request, "login.html")
+
+
+def home(request):
+    return render(request, "home.html")
+
+
+def success(request):
+    return render(request, "success.html")
+
+
 #  Authentication starts
 
 
