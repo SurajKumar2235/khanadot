@@ -164,21 +164,22 @@ def signup_api(request):
 def generate_token(request):
     email = request.data.get("email")
     password = request.data.get("password")
-
-    # Authenticate the user
-    user = authenticate(email=email, password=password)
-    if user is not None:
-        # Generate tokens for the user
-        refresh = RefreshToken.for_user(user)
-        token_data = {
-            "refresh": str(refresh),
-            "access": str(refresh.access_token),
-        }
-        return Response(token_data, status=status.HTTP_200_OK)
-    else:
-        return Response(
-            {"error": "Invalid email or password."}, status=status.HTTP_401_UNAUTHORIZED
-        )
+    try:
+        # Authenticate the user
+        user = authenticate(email=email, password=password)
+        if user is not None:
+            # Generate tokens for the user
+            refresh = RefreshToken.for_user(user)
+            access_token = refresh.access_token
+            token_data = {"refresh": str(refresh), "access": str(access_token)}
+            return Response(token_data, status=status.HTTP_200_OK)
+        else:
+            return Response(
+                {"error": "Invalid email or password."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+    except Exception as e:
+        return Response({"error": "Token Expired"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @csrf_exempt

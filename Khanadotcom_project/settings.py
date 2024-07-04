@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-^&afgq2o^(%k3=lylpjq90*#k%bwd8(^_^2kd=0*0)pafza9lh"
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -152,6 +152,23 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
 }
+from datetime import timedelta
+
 SIMPLE_JWT = {
-    "USER_ID_FIELD": "user_id",
+    "ACCESS_TOKEN_LIFETIME": timedelta(
+        hours=int(os.getenv("JWT_ACCESS_TOKEN_LIFETIME"))
+    ),
+    "REFRESH_TOKEN_LIFETIME": timedelta(
+        days=int(os.getenv("JWT_REFRESH_TOKEN_LIFETIME"))
+    ),
+    "ROTATE_REFRESH_TOKENS": os.getenv("JWT_ROTATE_REFRESH_TOKENS"),
+    "BLACKLIST_AFTER_ROTATION": os.getenv("JWT_BLACKLIST_AFTER_ROTATION"),
+    "ALGORITHM": os.getenv("JWT_ALGORITHM"),
+    "SIGNING_KEY": os.getenv("SECRET_KEY"),
+    "VERIFYING_KEY": os.getenv("JWT_VERIFYING_KEY"),
+    "AUTH_HEADER_TYPES": (os.getenv("JWT_AUTH_HEADER_TYPES"),),
+    "USER_ID_FIELD": os.getenv("JWT_USER_ID_FIELD"),
+    "USER_ID_CLAIM": os.getenv("JWT_USER_ID_CLAIM"),
+    "AUTH_TOKEN_CLASSES": (os.getenv("JWT_AUTH_TOKEN_CLASSES"),),
+    "TOKEN_TYPE_CLAIM": os.getenv("JWT_TOKEN_TYPE_CLAIM"),
 }
