@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from django.contrib.auth.base_user import BaseUserManager
+from django.core.validators import RegexValidator
+from django.conf import settings
+import uuid
 
 
 class UserManager(BaseUserManager):
@@ -332,4 +335,114 @@ class Coupon(models.Model):
 
     class Meta:
         db_table = "coupon"
+        managed = False
+
+
+# class SMSLogs(models.Model):
+#     mobile_no_validator = RegexValidator(
+#         regex=r"^\d{4,11}$",  # Example: 4 to 11 digits
+#         message="Mobile number must be between 4 and 11 digits.",
+#     )
+#     uid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+#     sended_by = models.CharField(
+#         db_column="sended_by", default="noreply", max_length=50, blank=False, null=False
+#     )
+#     sended_to = models.CharField(
+#         db_column="sended_to",
+#         max_length=50,
+#         validators=[mobile_no_validator],
+#         blank=False,
+#         null=False,
+#     )
+#     is_send = models.IntegerField(default=0)
+#     is_read = models.BooleanField(default=False)
+#     read_at = models.DateTimeField(blank=True, null=True)
+#     message = models.TextField(blank=False, null=False)
+#     sent_date = models.DateTimeField()
+#     to_be_sent_date = models.DateTimeField(blank=True, null=True)
+#     added_by = models.ForeignKey(
+#         settings.AUTH_USER_MODEL,
+#         on_delete=models.CASCADE,
+#         related_name="added_sms_log",
+#         db_column="added_by",
+#     )
+#     application = models.ForeignKey(
+#         "YourApp.Application",
+#         on_delete=models.CASCADE,
+#         default=None,  # Update default value as per your logic
+#         related_name="application_sms_log",
+#     )
+#     candidate = models.ForeignKey(
+#         "YourApp.CandidateDetails",
+#         on_delete=models.CASCADE,
+#         default=None,  # Update default value as per your logic
+#     )
+#     is_otp = models.IntegerField()
+#     dlt_te_id = models.CharField(
+#         db_column="dlt_te_id", max_length=100, blank=False, null=True
+#     )
+#     ip_address = models.CharField(
+#         blank=False, null=False, max_length=150, default="0.0.0.0"
+#     )
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
+#     is_deleted = models.BooleanField(default=False)
+#     is_update = models.IntegerField(blank=True, null=True)
+
+#     class Meta:
+#         managed = True
+#         db_table = "sms_logs"
+
+
+class EmailsLogs(models.Model):
+    uid = models.CharField(max_length=200, default=uuid.uuid4, unique=True)
+    sender = models.CharField(
+        db_column="sender",
+        default="KhanaDotCom",
+        max_length=50,
+        blank=False,
+        null=False,
+    )
+    recipient = models.EmailField(
+        db_column="recipient",
+        max_length=50,
+        blank=False,
+        null=False,
+        default="example@example.com",
+    )
+    is_sent = models.IntegerField(default=0)
+    is_read = models.BooleanField(default=False)
+    read_at = models.DateTimeField(null=True, blank=True)
+    message = models.TextField(blank=False, null=False)
+    subject = models.CharField(max_length=500, null=True)
+    attachment = models.CharField(max_length=500, blank=True, null=True)
+    sent_cc = models.CharField(max_length=500, blank=True, null=True)
+    sent_bcc = models.CharField(max_length=500, blank=True, null=True)
+    sent_date = models.DateTimeField()
+    to_be_sent_date = models.DateTimeField(blank=True, null=True)
+    added_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="added_email_logs",
+        db_column="added_by",
+    )
+    is_otp = models.IntegerField()
+    ip_address = models.CharField(
+        blank=False, null=False, max_length=150, default="0.0.0.0"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+    sender_name = models.CharField(
+        db_column="sender_name",
+        default="Bablu",
+        max_length=50,
+        blank=False,
+        null=False,
+    )
+    is_update = models.IntegerField(blank=True, null=True)
+    is_smtp = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = "email_log"
         managed = False

@@ -35,6 +35,7 @@ from .models import (
     Restaurant,
     CustomerDetail,
     FailedLoginAttempt,
+    EmailsLogs,
 )
 
 
@@ -255,19 +256,35 @@ def activate_api(request, uidb64, token):
 
 
 def send_activation_email(request, user):
-    mail_subject = "Activate your account."
-    message = render_to_string(
-        "activate_account.html",
-        {
-            "user": user,
-            "domain": get_current_site(request).domain,
-            "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-            "token": account_activation_token.make_token(user),
-        },
-    )
-    to_email = user.email
-    email = EmailMessage(mail_subject, message, to=[to_email])
-    email.send()
+    try:
+        mail_subject = "Activate Your Account"
+        message = render_to_string(
+            "activate_account.html",
+            {
+                "user": user,
+                "domain": get_current_site(request).domain,
+                "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                "token": account_activation_token.make_token(user),
+            },
+        )
+        to_email = user.email
+        email = EmailMessage(mail_subject, message, to=[to_email])
+        email.send()
+
+        # Log email in EmailsLogs table
+        EmailsLogs.objects.create(
+            subject=mail_subject,
+            message=message,
+            recipient=to_email,
+            sent_date=timezone.now(),
+            added_by=user,
+            is_otp=0
+        )
+
+    except Exception as e:
+        # Handle exceptions or errors here, such as logging them or notifying admins
+        print(f"Failed to send activation email: {str(e)}")
+        raise  # Raise the exception to propagate it if needed
 
 
 # authentication ends

@@ -15,6 +15,7 @@ from .models import (
     Category,
     MenuItemCategory,
     Notification,
+    EmailsLogs,
 )
 
 # Register your models here
@@ -71,6 +72,7 @@ class FailedLoginAttemptAdmin(admin.ModelAdmin):
     list_filter = ("timestamp",)
 
 
+
 admin.site.register(RestaurantOwner)
 admin.site.register(DeliveryPerson)
 admin.site.register(CustomerDetail)
@@ -80,3 +82,4 @@ admin.site.register(Coupon)
 admin.site.register(Category)
 admin.site.register(MenuItemCategory)
 admin.site.register(Notification)
+admin.site.register(EmailsLogs)
