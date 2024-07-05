@@ -269,7 +269,7 @@ This Django project implements a REST API for managing restaurants, users, order
   ```
   ```json
   {
-      "error": "No user
+      "error": "No user found with this email."
   }
   ```
 
@@ -312,128 +312,6 @@ This Django project implements a REST API for managing restaurants, users, order
     ```
     or specific password validation errors.
 
-## Example Usage
+---
 
-### 1. Request Password Reset
-
-```html
-<form id="loginForm">
-    {% csrf_token %}
-    <label for="username">Email:</label><br>
-    <input type="text" id="username" name="email" required><br><br>
-
-    <button type="submit">Reset Password</button>
-</form>
-
-
-<div id="loginMessage"></div>
-
-<script>
-    document.getElementById("loginForm").addEventListener("submit", function(event) {
-        event.preventDefault();
-
-        let formData = new FormData(this);
-
-        fetch('/password-reset/', {
-            method: 'POST',
-            body: JSON.stringify(Object.fromEntries(formData)),
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')  // Fetch CSRF token from cookies
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.location.href = '/success';  // Redirect to dashboard or desired page on successful login
-            } else {
-                // Display error message
-                document.getElementById("loginMessage").innerHTML = `<p>Error: ${data.error}</p>`;
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            document.getElementById("loginMessage").innerHTML = `<p>Network Error</p>`;
-        });
-    });
-
-    // Function to get CSRF token from cookies
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.startsWith(name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-</script>
-```
-
-### 2. Password Reset Confirmation
-
-#### GET Method (Rendering Password Reset Form)
-user will receivbe email and will be directed to password_reset_confirm_page page
-
-#### POST Method (Reset Password)
-```html
- <form id="resetForm" action="" method="post">
-        {% csrf_token %}
-        <input type="hidden" name="uidb64" value="{{ uidb64 }}">
-        <input type="hidden" name="token" value="{{ token }}">
-        <label for="new_password">New Password:</label><br>
-        <input type="password" id="new_password" name="new_password" required><br><br>
-        <button type="submit">Reset Password</button>
-    </form>
-    <div id="resetMessage"></div>
-    
-    <script>
-        document.getElementById("resetForm").addEventListener("submit", function(event) {
-            event.preventDefault();
-    
-            let formData = new FormData(this);
-            let uidb64 = document.querySelector("input[name='uidb64']").value;
-            let token = document.querySelector("input[name='token']").value;
-    
-            fetch(`/password-reset-confirm/${uidb64}/${token}/`,// Replace with the correct URL endpoint for password reset confirmation
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                } else {
-                    // Handle error
-                    
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById("resetMessage").innerHTML = `<p>Network Error</p>`;
-            });
-        });
-    
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.startsWith(name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-    </script>
-```
+This updated documentation covers the endpoints, request parameters, response formats, and example usage for each API endpoint in your Django REST API project. Make sure to replace `<your_access_token>` placeholders with actual access tokens in your implementation. If you need further adjustments or have more questions, feel free to ask!
