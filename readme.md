@@ -58,7 +58,7 @@ This Django project implements a REST API for managing restaurants, users, order
 #### 2. **Login**
 - **URL:** `/login/`
 - **Method:** POST
-- **Description:** Allows users to authenticate and obtain an access token.
+- **Description:** Allows users to authenticate.
 - **Parameters:**
   - `email` (string, required)
   - `password` (string, required)

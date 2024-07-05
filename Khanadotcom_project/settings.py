@@ -28,17 +28,17 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 
 
 # email sender
-EMAIL_BACKEND =os.getenv("EMAIL_BACKEND")
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")
 EMAIL_HOST = os.getenv("EMAIL_HOST")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT"))
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS")
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
-EMAIL_FROM = os.getenv("EMAIL_FROM")  
+EMAIL_FROM = os.getenv("EMAIL_FROM")
 PASSWORD_RESET_TIMEOUT = int(os.getenv("PASSWORD_RESET_TIMEOUT"))
 
 
@@ -53,7 +53,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "khanadotcom_app",
     "rest_framework",
-    "corsheaders"
+    "corsheaders",
 ]
 
 AUTH_USER_MODEL = "khanadotcom_app.User"
@@ -71,7 +71,7 @@ MIDDLEWARE = [
 ]
 ROOT_URLCONF = "khanadotcom_project.urls"
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOWED_ALL_ORIGINS=True
+CORS_ALLOWED_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 TEMPLATES = [
     {
