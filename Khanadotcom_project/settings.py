@@ -28,7 +28,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # email sender
@@ -71,6 +71,8 @@ MIDDLEWARE = [
 ]
 ROOT_URLCONF = "khanadotcom_project.urls"
 CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOWED_ALL_ORIGINS=True
+CORS_ALLOW_CREDENTIALS = True
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
