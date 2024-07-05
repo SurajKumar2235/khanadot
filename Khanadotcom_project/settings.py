@@ -53,11 +53,13 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "khanadotcom_app",
     "rest_framework",
+    "corsheaders"
 ]
 
 AUTH_USER_MODEL = "khanadotcom_app.User"
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -68,7 +70,7 @@ MIDDLEWARE = [
     "khanadotcom_app.middleware.TokenMiddleware",
 ]
 ROOT_URLCONF = "khanadotcom_project.urls"
-
+CORS_ORIGIN_ALLOW_ALL = True
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",

@@ -606,7 +606,7 @@ def update_profile(request):
             # Prepare success response
             response_data = {
                 "message": "Your profile has been updated!",
-                "user_id": user.id,
+                "user_id": user.user_id,
                 "name": user.name,
                 "phone_number": user.phone_number,
                 "address": user.address,
@@ -679,6 +679,5 @@ def delete_user_api(request, user_id):
             {"error": f"Failed to soft delete user: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
-
 
 # Delete api  Ends
