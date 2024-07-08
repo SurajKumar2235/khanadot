@@ -278,7 +278,7 @@ def send_activation_email(request, user):
             recipient=to_email,
             sent_date=timezone.now(),
             added_by=user,
-            is_otp=0
+            is_otp=0,
         )
 
     except Exception as e:
@@ -297,13 +297,43 @@ def send_activation_email(request, user):
 @api_view(["GET"])
 def user_profile_api(request):
     user = request.user
+
+    # Base user data
     data = {
         "user_id": user.user_id,
         "username": user.username,
         "email": user.email,
         "user_type": user.user_type,
+        "name": user.name,
+        "phone_number": user.phone_number,
+        "address": user.address,
     }
-    return Response(data)
+
+    # Additional user type-specific data
+    if user.user_type == "restaurant_owner":
+        restaurant_owner = get_object_or_404(RestaurantOwner, user=user)
+        data.update(
+            {
+                "aadhaar_card_number": restaurant_owner.aadhaar_card_number,
+            }
+        )
+    elif user.user_type == "delivery_person":
+        delivery_person = get_object_or_404(DeliveryPerson, user=user)
+        data.update(
+            {
+                "aadhaar_card_number": delivery_person.aadhaar_card_number,
+                "vehicle_details": delivery_person.vehicle_details,
+            }
+        )
+    elif user.user_type == "customer":
+        customer_detail = get_object_or_404(CustomerDetail, user=user)
+        data.update(
+            {
+                "date_of_birth": customer_detail.date_of_birth,
+            }
+        )
+
+    return Response(data, status=status.HTTP_200_OK)
 
 
 @permission_classes([IsAuthenticated])
@@ -679,5 +709,6 @@ def delete_user_api(request, user_id):
             {"error": f"Failed to soft delete user: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
+
 
 # Delete api  Ends
