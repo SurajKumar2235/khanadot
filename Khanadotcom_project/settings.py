@@ -70,9 +70,9 @@ MIDDLEWARE = [
     "khanadotcom_app.middleware.TokenMiddleware",
 ]
 ROOT_URLCONF = "khanadotcom_project.urls"
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOWED_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
