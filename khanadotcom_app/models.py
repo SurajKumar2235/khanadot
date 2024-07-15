@@ -446,3 +446,16 @@ class EmailsLogs(models.Model):
     class Meta:
         db_table = "email_log"
         managed = False
+
+
+class ContactMessage(models.Model):
+    message_id = models.CharField(max_length=200, default=uuid.uuid4, unique=True)
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    message = models.TextField(blank=False, null=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "message_contact"
+        managed = True

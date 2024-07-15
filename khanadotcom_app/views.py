@@ -36,6 +36,7 @@ from .models import (
     CustomerDetail,
     FailedLoginAttempt,
     EmailsLogs,
+    ContactMessage,
 )
 
 
@@ -712,3 +713,43 @@ def delete_user_api(request, user_id):
 
 
 # Delete api  Ends
+
+
+# contact us start
+
+
+@api_view(["POST"])
+def contact_us(request):
+    if request.method == "POST":
+        try:
+            data = request.data  # Use request.data to handle JSON payload
+            name = data["name"]
+            email = data["email"]
+            message = data["message"]
+
+            contact_message = ContactMessage(name=name, email=email, message=message)
+            contact_message.save()
+
+            return JsonResponse({message: "Your message is sent"})
+
+        except json.JSONDecodeError:
+            return JsonResponse(
+                {"error": "Invalid JSON format."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        except ValueError as e:
+            return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return JsonResponse(
+                {"error": "Internal Server Error: " + str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+    else:
+        return JsonResponse(
+            {"error": "Method not allowed."}, status=status.HTTP_405_METHOD_NOT_ALLOWED
+        )
+
+
+# contact us end

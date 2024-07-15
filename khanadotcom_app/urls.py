@@ -40,4 +40,5 @@ urlpatterns = [
         views.password_reset_confirm,
         name="password_reset_confirm",
     ),
+    path("contact/", views.contact_us, name="contact_us"),
 ]
