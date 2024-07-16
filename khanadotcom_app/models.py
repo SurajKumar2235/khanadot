@@ -458,4 +458,4 @@ class ContactMessage(models.Model):
 
     class Meta:
         db_table = "message_contact"
-        managed = True
+        managed = False

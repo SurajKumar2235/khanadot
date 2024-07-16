@@ -378,108 +378,6 @@ def menu_items_api(request, restaurant_id):
 
 # Basic api ends
 
-# Order placement api Starts
-
-
-@permission_classes([IsAuthenticated])
-@api_view(["POST"])
-# @permission_classes([IsAuthenticated])
-def order_placement_api(request, restaurant_id):
-    restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
-
-    if request.method == "POST":
-        data = request.data
-
-        # Extract data from request body
-        delivery_address = data.get("delivery_address")
-        items = data.get("items", [])
-
-        # Validate data presence
-        if not (delivery_address and items):
-            return Response(
-                {"error": "Delivery address and items are required fields."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        # Create Order object
-        order = Order.objects.create(
-            user=request.user,  # Assuming user is authenticated
-            delivery_address=delivery_address,
-            total_amount=0,  # Placeholder for total amount
-        )
-
-        # Process each selected menu item
-        total_amount = 0
-
-        for item_id in items:
-            menu_item = get_object_or_404(MenuItem, pk=item_id)
-            quantity = 1  # For simplicity, assuming quantity is always 1
-            OrderItem.objects.create(
-                order=order,
-                menu_item=menu_item,
-                quantity=quantity,
-                price=menu_item.price,
-            )
-            total_amount += menu_item.price
-
-        # Update total_amount in the Order model
-        order.total_amount = total_amount
-        order.save()
-
-        # Create Payment object (example: cash on delivery)
-        payment = Payment.objects.create(
-            order=order,
-            payment_method="cash_on_delivery",
-            amount=total_amount,
-            payment_status="pending",  # Adjust based on actual payment flow
-        )
-
-        # Return JSON response with order confirmation details
-        return Response(
-            {
-                "success": "Order placed successfully.",
-                "order_id": order.order_id,
-                "total_amount": order.total_amount,
-            },
-            status=status.HTTP_201_CREATED,
-        )
-
-    else:
-        # Return method not allowed error for non-POST requests
-        return Response(
-            {"error": "Method not allowed."}, status=status.HTTP_405_METHOD_NOT_ALLOWED
-        )
-
-
-@permission_classes([IsAuthenticated])
-@api_view(["GET"])
-def order_confirmation_api(request, order_id):
-    order = get_object_or_404(Order, order_id=order_id)
-
-    # Prepare data to return in the response
-    order_data = {
-        "order_id": order.order_id,
-        "total_amount": order.total_amount,
-        "order_date": order.order_date.strftime("%Y-%m-%d %H:%M:%S"),
-    }
-
-    return Response(order_data)
-
-
-# Order placement api Ends
-
-
-@permission_classes([IsAuthenticated])
-@api_view(["GET"])
-def order_history_api(request):
-    # Fetch orders for the current user (assuming user is authenticated)
-    orders = Order.objects.filter(user=request.user).order_by("-order_date")
-
-    # Serialize queryset into JSON data
-    serializer = OrderSerializer(orders, many=True)
-
-    return Response(serializer.data)
-
 
 #  reset password api start
 
@@ -753,3 +651,109 @@ def contact_us(request):
 
 
 # contact us end
+
+# Orde rplacement and validation start
+# Order placement api Starts
+
+
+@permission_classes([IsAuthenticated])
+@api_view(["POST"])
+# @permission_classes([IsAuthenticated])
+def order_placement_api(request, restaurant_id):
+    restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
+
+    if request.method == "POST":
+        data = request.data
+
+        # Extract data from request body
+        delivery_address = data.get("delivery_address")
+        items = data.get("items", [])
+
+        # Validate data presence
+        if not (delivery_address and items):
+            return Response(
+                {"error": "Delivery address and items are required fields."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Create Order object
+        order = Order.objects.create(
+            user=request.user,  # Assuming user is authenticated
+            delivery_address=delivery_address,
+            total_amount=0,  # Placeholder for total amount
+        )
+
+        # Process each selected menu item
+        total_amount = 0
+
+        for item_id in items:
+            menu_item = get_object_or_404(MenuItem, pk=item_id)
+            quantity = 1  # For simplicity, assuming quantity is always 1
+            OrderItem.objects.create(
+                order=order,
+                menu_item=menu_item,
+                quantity=quantity,
+                price=menu_item.price,
+            )
+            total_amount += menu_item.price
+
+        # Update total_amount in the Order model
+        order.total_amount = total_amount
+        order.save()
+
+        # Create Payment object (example: cash on delivery)
+        payment = Payment.objects.create(
+            order=order,
+            payment_method="cash_on_delivery",
+            amount=total_amount,
+            payment_status="pending",  # Adjust based on actual payment flow
+        )
+
+        # Return JSON response with order confirmation details
+        return Response(
+            {
+                "success": "Order placed successfully.",
+                "order_id": order.order_id,
+                "total_amount": order.total_amount,
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+    else:
+        # Return method not allowed error for non-POST requests
+        return Response(
+            {"error": "Method not allowed."}, status=status.HTTP_405_METHOD_NOT_ALLOWED
+        )
+
+
+@permission_classes([IsAuthenticated])
+@api_view(["GET"])
+def order_confirmation_api(request, order_id):
+    order = get_object_or_404(Order, order_id=order_id)
+
+    # Prepare data to return in the response
+    order_data = {
+        "order_id": order.order_id,
+        "total_amount": order.total_amount,
+        "order_date": order.order_date.strftime("%Y-%m-%d %H:%M:%S"),
+    }
+
+    return Response(order_data)
+
+
+# Order placement api Ends
+
+
+@permission_classes([IsAuthenticated])
+@api_view(["GET"])
+def order_history_api(request):
+    # Fetch orders for the current user (assuming user is authenticated)
+    orders = Order.objects.filter(user=request.user).order_by("-order_date")
+
+    # Serialize queryset into JSON data
+    serializer = OrderSerializer(orders, many=True)
+
+    return Response(serializer.data)
+
+
+# order placemenet and validation ends
