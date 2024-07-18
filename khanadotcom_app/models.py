@@ -56,7 +56,7 @@ class User(AbstractUser):
 
     class Meta:
         db_table = "user"
-        managed = False
+        managed = True
 
 
 class FailedLoginAttempt(models.Model):
@@ -66,7 +66,7 @@ class FailedLoginAttempt(models.Model):
 
     class Meta:
         db_table = "failed_login_attempt"
-        managed = False
+        managed = True
 
 
 class CustomerDetail(models.Model):
@@ -79,7 +79,7 @@ class CustomerDetail(models.Model):
 
     class Meta:
         db_table = "customer_details"
-        managed = False
+        managed = True
 
 
 class RestaurantOwner(models.Model):
@@ -96,7 +96,7 @@ class RestaurantOwner(models.Model):
 
     class Meta:
         db_table = "restaurant_owner_detail"
-        managed = False
+        managed = True
 
 
 class Restaurant(models.Model):
@@ -121,7 +121,7 @@ class Restaurant(models.Model):
 
     class Meta:
         db_table = "restaurant_details"
-        managed = False
+        managed = True
 
 
 class DeliveryPerson(models.Model):
@@ -141,7 +141,7 @@ class DeliveryPerson(models.Model):
 
     class Meta:
         db_table = "delivery_person_details"
-        managed = False
+        managed = True
 
 
 class MenuItem(models.Model):
@@ -164,7 +164,7 @@ class MenuItem(models.Model):
 
     class Meta:
         db_table = "menu_item_details"
-        managed = False
+        managed = True
 
 
 class Order(models.Model):
@@ -196,7 +196,7 @@ class Order(models.Model):
 
     class Meta:
         db_table = "order"
-        managed = False
+        managed = True
 
 
 class OrderItem(models.Model):
@@ -214,7 +214,7 @@ class OrderItem(models.Model):
 
     class Meta:
         db_table = "order_item"
-        managed = False
+        managed = True
 
 
 class Payment(models.Model):
@@ -243,7 +243,7 @@ class Payment(models.Model):
 
     class Meta:
         db_table = "payment"
-        managed = False
+        managed = True
 
 
 class Review(models.Model):
@@ -268,7 +268,7 @@ class Review(models.Model):
 
     class Meta:
         db_table = "review"
-        managed = False
+        managed = True
 
 
 class Category(models.Model):
@@ -283,7 +283,7 @@ class Category(models.Model):
 
     class Meta:
         db_table = "category"
-        managed = False
+        managed = True
 
 
 class MenuItemCategory(models.Model):
@@ -298,7 +298,7 @@ class MenuItemCategory(models.Model):
 
     class Meta:
         db_table = "menu_item_category"
-        managed = False
+        managed = True
 
 
 class Notification(models.Model):
@@ -313,7 +313,7 @@ class Notification(models.Model):
 
     class Meta:
         db_table = "notification"
-        managed = False
+        managed = True
 
 
 class Coupon(models.Model):
@@ -335,7 +335,7 @@ class Coupon(models.Model):
 
     class Meta:
         db_table = "coupon"
-        managed = False
+        managed = True
 
 
 # class SMSLogs(models.Model):
@@ -445,7 +445,7 @@ class EmailsLogs(models.Model):
 
     class Meta:
         db_table = "email_log"
-        managed = False
+        managed = True
 
 
 class ContactMessage(models.Model):
@@ -458,4 +458,4 @@ class ContactMessage(models.Model):
 
     class Meta:
         db_table = "message_contact"
-        managed = False
+        managed = True
