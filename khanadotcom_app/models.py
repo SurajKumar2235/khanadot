@@ -435,7 +435,7 @@ class EmailsLogs(models.Model):
     is_deleted = models.BooleanField(default=False)
     sender_name = models.CharField(
         db_column="sender_name",
-        default="Bablu",
+        default="khanadotcom",
         max_length=50,
         blank=False,
         null=False,
