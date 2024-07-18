@@ -1,6 +1,6 @@
 myenv
 test.py
-.env
+
 khanadotcom_app/migrations
 khanadotcom_app/__pycache__
 khanadotcom_project/__pycache__

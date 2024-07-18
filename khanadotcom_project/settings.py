@@ -99,11 +99,11 @@ WSGI_APPLICATION = "khanadotcom_project.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": os.getenv("DATABASE_NAME"),
-        "USER": os.getenv("DATABASE_USER"),
-        "PASSWORD": os.getenv("DATABASE_PASSWORD"),
-        "HOST": os.getenv("DATABASE_HOST"),
-        "PORT": os.getenv("DATABASE_PORT"),
+        "NAME": "khana",
+        "USER":"admin",
+        "PASSWORD": "admin2235098",
+        "HOST": "khanadotcom.cl8eu6weoxrd.ap-south-1.rds.amazonaws.com",
+        "PORT": "3306",
     },
 }
 
